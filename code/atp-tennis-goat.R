@@ -11,6 +11,7 @@ library(ggplot2)
 library(ggbeeswarm)
 library(readr)
 library(lubridate)
+library(gam)
 
 # load player id data
 atp_players <- readr::read_csv(url("https://github.com/JeffSackmann/tennis_atp/raw/master/atp_players.csv"))
@@ -26,12 +27,12 @@ gs_dat <- readr::read_csv("data/atp_tennis_data/atp_grand_slam_winners.csv")
 head(gs_dat)
 
 # federer first atp match: https://en.wikipedia.org/wiki/Roger_Federer#:~:text=1998–2002%3A%20Early%20professional%20career,-Main%20article%3A%20Roger&text=Federer%20made%20his%20ATP%20debut,in%20Toulouse%20against%20Guillaume%20Raoux.
-fed_start <- 1998
+start <- 1998
 
 # load the atp match datasets
 
 # choose the years
-years <- 2000:2023
+years <- start:2023
 
 # get the relevant linkes
 links <- paste0("https://github.com/JeffSackmann/tennis_atp/raw/master/atp_matches_",
@@ -48,19 +49,24 @@ for(i in 1:length(links)) {
 # check the datasets
 atp_match_list[[sample(x = 1:length(links), 1)]]
 
-# get federer, nadal, djokovic and murray's stats
-firstname <- c("Roger", "Rafael", "Novak", "Andy", "Stan")
-surname <- c("Federer", "Nadal", "Djokovic", "Murray", "Wawrinka")
+# get get players that have won more than one slam since 1995
+which_players <- c("Pete Sampras", "Andre Agassi", "Gustavo Kuerten",
+                   "Marat Safin", "Lleyton Hewitt", "Roger Federer", 
+                   "Rafael Nadal", "Novak Djokovic", "Andy Murray",
+                   "Stan Wawrinka", "Carlos Alcaraz")
 
 # get the player ids
 ids <- 
-  mapply(function(x, y) {
+  sapply(which_players, function(x) {
   
-  atp_players |>
-    dplyr::filter(name_first == x, name_last == y) |>
-    dplyr::pull(player_id)
+    y <- strsplit(x = x, " ")
+    
+    atp_players |>
+      dplyr::filter(name_first == y[[1]][1], name_last == y[[1]][2]) |>
+      dplyr::pull(player_id)
   
-}, firstname, surname, SIMPLIFY = TRUE)
+})
+print(ids)
  
 #'
 #' @title win_percentage()
@@ -93,7 +99,7 @@ win_percentage <- function(data, player_id) {
   
   # when the player loses
   lose_df <- 
-    atp_match2000 |>
+    data |>
     dplyr::filter(loser_id == player_id)
   
   # calculate point winning percentage
@@ -127,8 +133,82 @@ win_percentage <- function(data, player_id) {
 # set-up an output list
 win_perc_list <- vector("list", length = length(atp_match_list))
 
-# test the function
-win_percentage(data = atp_match_list[[1]], player_id = ids[[5]])
+for(i in 1:length(win_perc_list)) {
+  
+  # calculate win percentage for each player in year i
+  y <- 
+    
+    lapply(ids, function(x) {
+    
+    win_percentage(data = atp_match_list[[i]], player_id = x)
+    
+  })
+  
+  # bind into a data.frame
+  win_perc_list[[i]] <- dplyr::bind_rows(y)
+  
+}
+
+# bind this into one large dataset
+win_perc_df <- dplyr::bind_rows(win_perc_list, .id = "year")
+dim(win_perc_df)
+
+# remove the NA values
+win_perc_df <- 
+  win_perc_df |>
+  dplyr::filter(!is.na(point_win_perc))
+
+# make a variable for whether it is federer, nadal, djokovic or not
+win_perc_df <- 
+  win_perc_df |>
+  mutate(goats = ifelse(player_id %in% c(103819, 104745, 104925), TRUE, FALSE))
+
+# check how many tournaments each player per year
+win_perc_df |>
+  dplyr::group_by(player_id, player_name, tourney_year) |>
+  dplyr::summarise(n = length(unique(tourney_date))) |>
+  View()
+
+# exclude years where less than 5 tournaments were played summarise by tourney date
+win_perc_sum <- 
+  win_perc_df |>
+  dplyr::group_by(player_id, player_name, tourney_year) |>
+  dplyr::mutate(n = length(unique(tourney_date))) |>
+  dplyr::filter(n > 4) |>
+  dplyr::ungroup() |>
+  dplyr::group_by(goats, player_id, player_name, tourney_date) |>
+  dplyr::summarise(point_win_perc_m = mean(point_win_perc),
+                   point_win_perc_sd = sd(point_win_perc)
+                   )
+
+# fit gams to these data
+
+# get confidence intervals: https://fromthebottomoftheheap.net/2016/12/15/simultaneous-interval-revisited/
+gam_df <- 
+  win_perc_sum |>
+  dplyr::filter(player_id == 103819) |>
+  dplyr::mutate(tourney_date_num = as.numeric(tourney_date))
+  
+mod_gam1 <- gam(point_win_perc_m ~ s(as.numeric(tourney_date_num), 3), data = gam_df)
+plot(mod_gam1)
+
+pred_df <- predict(mod_gam1, type = "link", se.fit = TRUE)
+
+# plot the results
+
+
+# plot point win percentage over time
+ggplot() +
+  geom_smooth(data = win_perc_sum |> dplyr::filter(goats == FALSE),
+             mapping = aes(x = tourney_date, y = point_win_perc_m, group = player_name),
+             show.legend = FALSE, alpha = 0.1, linewidth = 0.2, colour = "grey") +
+  # geom_point(data = win_perc_sum |> dplyr::filter(goats == TRUE),
+             # mapping = aes(x = tourney_date, y = point_win_perc_m, colour = player_name),
+             # alpha = 0.1) +
+  geom_smooth(data = win_perc_sum |> dplyr::filter(goats == TRUE),
+             mapping = aes(x = tourney_date, y = point_win_perc_m, colour = player_name)) +
+  theme_classic() +
+  theme(legend.position = "bottom")
 
 
 
