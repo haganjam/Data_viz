@@ -17,50 +17,6 @@ library(dplyr)
 library(tidyr)
 library(ggplot2)
 
-
-#' @title: sample_clt()
-#' @description: function to sample from a distribution and estimate the 
-#' sample mean, standard deviation, n and standard error.
-#' @param pop_data - vector of data-points from the population
-#' @param n - size of the sample to be taken
-#' @param n_samples - number of indepedent samples of size n to take
-
-sample_clt <- function(pop_data, n, n_samples) {
-  
-  # test input data
-  assertthat::assert_that(assertthat::is.count(n), 
-                          msg = "n must be an integer")
-  
-  assertthat::assert_that(assertthat::is.count(n_samples), 
-                         msg = "n_samples must be an integer")
-  
-  assertthat::assert_that(n < length(pop_data),
-                          msg = "size of the sample cannot be greater than
-                          the number of samples in the population distribution")
-  
-  dist_clt <- vector("list", length = length(1:n_samples))
-  for (i in seq_along(1:n_samples)) {
-    
-    samp_dat <- sample(pop_data, size = n, replace = FALSE, prob = NULL)
-    m_dist <- mean(samp_dat)
-    sd_dist <- sd(samp_dat)
-    n_dist <- length(samp_dat)
-    se_dist <- sd(samp_dat)/sqrt(length(samp_dat))
-    dist_clt[[i]] <- dplyr::bind_cols(sample_mean = m_dist,
-                                      sample_sd = sd_dist,
-                                      sample_n = n_dist,
-                                      sample_se = se_dist)
-  }
-  
-  # combine the independent samples
-  dist_clt <- dplyr::bind_rows(dist_clt)
-  
-  # combine the different samples
-  dplyr::bind_cols( dplyr::tibble(sample_size = as.character(rep(n, times = n_samples))),
-                    dplyr::select(dist_clt, sample_mean, sample_sd, sample_n, sample_se))
-  
-}
-
 #' @title: sim_dist()
 #' @description: function to generate a population distribution from one of
 #' four distributions: normal, lognormal, poisson and uniform.
@@ -112,12 +68,101 @@ sim_dist <- function(dist = "normal", n = 10000, par1 = 1, par2 = 1) {
       
     } 
     
-  pop_data
+  pop_data + rnorm(n = length(pop_data), mean = 0, sd = 0.01)
   
 }
 
-#' @title theme_meta
-#' @description A customised plotting theme to equalise the formatting of
+#' @title: sample_clt()
+#' @description: function to sample from a distribution and estimate the 
+#' sample mean, standard deviation, n and standard error.
+#' @param pop_data - vector of data-points from the population
+#' @param n - size of the sample to be taken
+#' @param n_samples - number of indepedent samples of size n to take
+
+sample_clt <- function(pop_data, n, n_samples) {
+  
+  # test input data
+  assertthat::assert_that(assertthat::is.count(n), 
+                          msg = "n must be an integer")
+  
+  assertthat::assert_that(assertthat::is.count(n_samples), 
+                         msg = "n_samples must be an integer")
+  
+  assertthat::assert_that(n < length(pop_data),
+                          msg = "size of the sample cannot be greater than
+                          the number of samples in the population distribution")
+  
+  dist_clt <- vector("list", length = length(1:n_samples))
+  for (i in seq_along(1:n_samples)) {
+    
+    samp_dat <- sample(pop_data, size = n, replace = FALSE, prob = NULL)
+    m_dist <- mean(samp_dat)
+    sd_dist <- sd(samp_dat)
+    n_dist <- length(samp_dat)
+    se_dist <- sd(samp_dat)/sqrt(length(samp_dat))
+    dist_clt[[i]] <- dplyr::bind_cols(sample_mean = m_dist,
+                                      sample_sd = sd_dist,
+                                      sample_n = n_dist,
+                                      sample_se = se_dist)
+  }
+  
+  # combine the independent samples
+  dist_clt <- dplyr::bind_rows(dist_clt)
+  
+  # combine the different samples
+  dplyr::bind_cols( dplyr::tibble(sample_size = as.character(rep(n, times = n_samples))),
+                    dplyr::select(dist_clt, sample_mean, sample_sd, sample_n, sample_se))
+  
+}
+
+#' @title process_hist()
+#' @description function to process the histogram plotting that this dashboard
+#' repeats several times
+#' @param vec - vector of numeric data
+process_hist <- function(vec) {
+  
+  # add the distribution to a table
+  x <- dplyr::tibble(y = vec)
+  
+  # calculating the Sturges bins
+  breaks <- pretty(range(x$y), n = nclass.Sturges(x$y), min.n = 1)
+  
+  group_j <- vector(length = nrow(x))
+  for(j in 1:nrow(x)) {
+    group_i <- vector(length = length(breaks)-1)
+    for(i in 1:length(breaks-1)) {
+      group_i[i] <- (x$y[j] > breaks[i]) & (x$y[j] < breaks[i+1])
+      }
+    group_j[j] <- which(group_i == TRUE) 
+    }
+  
+  # add the groups to the table
+  x$z <- group_j
+  
+  # calculate the mean and standard deviation
+  mean_x <- mean(x$y)
+  sd_x <- sd(x$y)
+  
+  # count per break
+  x_sum <- 
+    x |>
+    dplyr::group_by(z) |>
+    dplyr::summarise(midpoint = mean(y),
+                     count = n())
+  
+  # get the maximum group count
+  ymax <- max(x_sum$count)
+  
+  list("x" = x, 
+       "breaks" = breaks, 
+       "mean_x" = mean_x, 
+       "sd_x" = sd_x, 
+       "ymax" = ymax)
+  
+}
+
+#' @title theme_meta()
+#' @description customised plotting theme to equalise the formatting of
 #'  all plots plotted with ggplot2
 #' @author James G. Hagan (james_hagan(at)outlook.com)
 theme_meta <- function(base_size = 12, base_family = "") {
@@ -173,24 +218,57 @@ dist_choices <- c("normal", "lognorm", "poisson", "uniform")
 selectInput("population_dist", label = "Select population distribution", choices = dist_choices)
 
 # distribution parameters
-numericInput("par1", "Parameter 1", value = 1, min = -1000, max = 1000)
-numericInput("par2", "Parameter 2", value = 1, min = 0.001, max = 1000)
+numericInput("par1", "Parameter 1", value = 1, min = 0, max = 20)
+numericInput("par2", "Parameter 2", value = 1, min = 0, max = 20)
+
+# update the parameters based on their inputs
+observeEvent(input$population_dist, {
+  
+  par12 <- 
+    dplyr::tibble(dist = dist_choices, 
+                  par1min = c(0, 0, 0.1, 0 ),
+                  par1max = c(20, 20, 50, 0 ),
+                  par1val = c(0, 1, 1, 0),
+                  par1step = c(1, 1, 1, 1),
+                  par2min = c(0, 0, 0.1, 10 ),
+                  par2max = c(20, 0.6, 50, 200 ),
+                  par2val = c(1, 0.1, 1, 100),
+                  par2step = c(1, 0.1, 1, 1)) |>
+    dplyr::filter(dist == input$population_dist)
+  
+  updateNumericInput(session = session, 
+                     inputId = "par1", value = par12$par1val,
+                     min = par12$par1min, max = par12$par1max,
+                     step = par12$par1step)
+  updateNumericInput(session = session, 
+                     inputId = "par2", value = par12$par2val,
+                     min = par12$par2min, max = par12$par2max,
+                     step = par12$par2step)
+  
+})
 
 # size of the sample to take
-sliderInput("n", "Sample size", value = 30, min = 1, max = 1000, step = 1)
+sliderInput("n", "Sample size", value = 30, min = 1, max = 200, step = 1)
 
 # simulate the population distribution
 popx <- 
   reactive(sim_dist(dist = input$population_dist, 
                     n = 10000, 
                     par1 = input$par1, par2 = input$par2))
+
+min_popx <- reactive(min(popx()))
+max_popx <- reactive(max(popx()))
+n_popx <- reactive(length(popx()))
+
+# take independent samples from the population distribution
+samplex <- reactive(sample_clt(pop_data = popx(), n = input$n, n_samples = 1000))
            
 ```
 
 Body {.hidden}
 ======================================================================
 
-Column {data-width=500}
+Column {data-width=650}
 -------------------------------------------------------------------------------
 
 ### Population distribution
@@ -199,42 +277,18 @@ Column {data-width=500}
 
 renderPlot({
   
-  # add the distribution to a table
-  x <- dplyr::tibble(y = popx())
-  
-  # calculating the Sturges bins
-  breaks <- pretty(range(x$y), n = nclass.Sturges(x$y), min.n = 1)
-  
-  group_j <- vector(length = length(nrow(x)))
-  for(j in 1:nrow(x)) {
-    group_i <- vector(length = length(breaks)-1)
-    for(i in 1:length(breaks-1)) {
-      group_i[i] <- (x$y[j] > breaks[i]) & (x$y[j] < breaks[i+1])
-      }
-    group_j[j] <- which(group_i == TRUE) 
-    }
-  
-  # add the groups to the table
-  x$z <- group_j
-  
-  # calculate the mean and standard deviation
-  mean_x <- mean(x$y)
-  sd_x <- sd(x$y)
-  
-  # count per break
-  x_sum <- 
-    x |>
-    dplyr::group_by(z) |>
-    dplyr::summarise(midpoint = mean(y),
-                     count = n())
-  
-  # get the maximum group count
-  ymax <- max(x_sum$count)
+  # process the data
+  listx <- process_hist(vec = popx())
+  mean_x <- listx[["mean_x"]]
+  sd_x <- listx[["sd_x"]]
+  ymax <- listx[["ymax"]]
   
   # plot this as a histogram
   ggplot() +
-    geom_histogram(data = x, mapping = aes(x = y), breaks = breaks, colour = "grey") +
-    geom_segment(mapping = aes(x = mean_x, xend = mean_x, y = 0, yend = ymax),
+    geom_histogram(data = listx[["x"]], mapping = aes(x = y), 
+                   breaks = listx[["breaks"]], colour = "grey") +
+    geom_segment(mapping = aes(x = mean_x, xend = mean_x, 
+                               y = 0, yend = ymax),
                  colour = "red", linewidth = 1, linetype = "dashed") +
     geom_rect(mapping = aes(xmin = mean_x-sd_x, xmax = mean_x+sd_x, ymin = 0, ymax = ymax),
               alpha = 0.1, fill = "red") +
@@ -245,6 +299,7 @@ renderPlot({
     annotate(geom = "text", x = ((mean_x) + (sd_x)/2), y = (ymax + 150), label = expression(sigma),
              size = 8, colour = "red") +
     scale_y_continuous(expand = c(0, 0), limits = c(0, ymax + 200)) +
+    scale_x_continuous(limits = c(min_popx(), max_popx())) +
     xlab(NULL) +
     ylab(NULL) +
     theme_meta() +
@@ -261,9 +316,85 @@ renderPlot({
 
 ```{r}
 
+renderPlot({
+  
+  # process the data
+  listx <- process_hist(vec = sample(popx(), size = input$n, replace = FALSE) )
+  mean_x <- listx[["mean_x"]]
+  sd_x <- listx[["sd_x"]]
+  ymax <- listx[["ymax"]]
+  
+  # scaling factor for the labels
+  scaling <- round(0.02*input$n, 0)
+  
+  # plot this as a histogram
+  ggplot() +
+    geom_histogram(data = listx[["x"]], mapping = aes(x = y), 
+                   breaks = listx[["breaks"]], colour = "grey") +
+    geom_segment(mapping = aes(x = mean_x, xend = mean_x, y = 0, yend = ymax),
+                 colour = "red", linewidth = 1, linetype = "dashed") +
+    geom_rect(mapping = aes(xmin = mean_x-sd_x, xmax = mean_x+sd_x, ymin = 0, ymax = ymax),
+              alpha = 0.1, fill = "red") +
+    annotate(geom = "text", x = mean_x, y = (ymax + ((50/200)*scaling)), label = expression(bar("x")),
+             size = 8, colour = "red") +
+    geom_segment(mapping = aes(x = mean_x, xend = mean_x + sd_x, y = (ymax + ((110/200)*scaling)), 
+                               yend = (ymax + ((110/200)*scaling))),
+                 colour = "red", linewidth = 0.5) +
+    annotate(geom = "text", x = ((mean_x) + (sd_x)/2), y = (ymax + ((150/200)*scaling) ), 
+             label = "s",
+             size = 8, colour = "red") +
+    scale_y_continuous(expand = c(0, 0), limits = c(0, ymax + scaling)) +
+    scale_x_continuous(limits = c(min_popx(), max_popx())) +
+    xlab(NULL) +
+    ylab(NULL) +
+    theme_meta() +
+    theme(axis.text.y = element_blank(),
+          axis.ticks.y = element_blank())
+  
+}
+
+)
+
 ```
 
 
+### Sampling distribution of the mean (i.e. distribution of x-bar values)
 
+```{r}
+renderPlot({
+  
+  # process the data
+  listx <- process_hist(vec = samplex()$sample_mean )
+  mean_x <- listx[["mean_x"]]
+  sd_x <- listx[["sd_x"]]
+  ymax <- listx[["ymax"]]
+  
+  # scaling factor for the labels
+  scaling <- round(0.02*1000, 0)
+  
+  # plot this as a histogram
+  ggplot() +
+    geom_histogram(data = listx[["x"]], mapping = aes(x = y), 
+                   breaks = listx[["breaks"]], colour = "grey") +
+    geom_segment(mapping = aes(x = mean_x, xend = mean_x, y = 0, yend = ymax),
+                 colour = "red", linewidth = 1, linetype = "dashed") +
+    geom_rect(mapping = aes(xmin = mean_x-sd_x, xmax = mean_x+sd_x, ymin = 0, ymax = ymax),
+              alpha = 0.1, fill = "red") +
+    scale_y_continuous(expand = c(0, 0), limits = c(0, ymax + scaling)) +
+    scale_x_continuous(limits = c(min_popx(), max_popx())) +
+    xlab(NULL) +
+    ylab(NULL) +
+    theme_meta() +
+    theme(axis.text.y = element_blank(),
+          axis.ticks.y = element_blank())
+  
+}
+
+)
+```
+
+
+Column {data-width=500}
+-------------------------------------------------------------------------------
 
 
