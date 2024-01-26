@@ -17,61 +17,6 @@ library(dplyr)
 library(tidyr)
 library(ggplot2)
 
-#' @title: sim_dist()
-#' @description: function to generate a population distribution from one of
-#' four distributions: normal, lognormal, poisson and uniform.
-#' @param dist - distribution to sample from (string: normal, lognorm, poisson, uniform)
-#' @param n - size of the sample to be taken (integer)
-#' @param par1 - parameter 1 of the distribution:
-#' - normal: par1 = mean
-#' - lognorm: par1 = meanlog
-#' - poisson: par1 = lambda
-#' - uniform: par1 = min
-#' @param par2 - parameter 2 of the distribution:
-#' - normal: par2 = sd
-#' - lognorm: par2 = sdlog
-#' - poisson: par2 = NULL
-#' - uniform: par2 = max
-
-sim_dist <- function(dist = "normal", n = 10000, par1 = 1, par2 = 1) {
-  
-  # test the inputs
-  assertthat::assert_that(assertthat::is.string(dist), 
-                          msg = "dist must be a string")
-  assertthat::assert_that(dist %in% c("normal", "lognorm", "poisson", "uniform"), 
-                          msg = "dist must be an accepted distribution")
-  
-  assertthat::assert_that(assertthat::is.count(n), 
-                          msg = "n must be an integer")
-  
-  pop_data <- 
-    
-    if(dist == "normal") {
-      
-      assertthat::assert_that(par2 > 0, msg = "par2 must be greater than zero")
-      rnorm(n = n, mean = par1, sd = par2)
-      
-    } else if(dist == "lognorm") {
-      
-      assertthat::assert_that(par2 > 0, msg = "par2 must be greater than zero")
-      rlnorm(n = n, meanlog = par1, sdlog = par2)
-      
-    } else if(dist == "poisson") {
-      
-      assertthat::assert_that(par1 > 0, msg = "par1 must be greater than zero")
-      rpois(n = n, lambda = par1)
-      
-    } else if(dist == "uniform") {
-      
-      assertthat::assert_that(par1 < par2, msg = "min must be less than max")
-      runif(n = n, min = par1, max = par2)
-      
-    } 
-    
-  pop_data + rnorm(n = length(pop_data), mean = 0, sd = 0.01)
-  
-}
-
 #' @title: sample_clt()
 #' @description: function to sample from a distribution and estimate the 
 #' sample mean, standard deviation, n and standard error.
@@ -119,14 +64,27 @@ sample_clt <- function(pop_data, n, n_samples) {
 #' @description function to process the histogram plotting that this dashboard
 #' repeats several times
 #' @param vec - vector of numeric data
-process_hist <- function(vec) {
+#' @param min_x - minimum limit on the x-axis
+#' @param min_y - minimum limit on the y-axis
+#' @param mean_y - label for the mean
+#' @param sd_y - label for the standard deviation
+#' @param add_labels - whether to add the mean and sd labels
+process_hist <- function(vec, min_x, max_x, mean_lab, sd_lab, add_labels,
+                         sca_yaxis = 0.065,
+                         sca_mean = 0.07,
+                         sca_seg = 0.16,
+                         sca_sd = 0.22) {
   
   # add the distribution to a table
   x <- dplyr::tibble(y = vec)
   
+  # get the length of the vector
+  n_vec <- length(vec)
+  
   # calculating the Sturges bins
   breaks <- pretty(range(x$y), n = nclass.Sturges(x$y), min.n = 1)
   
+  # classify each observation into a bin
   group_j <- vector(length = nrow(x))
   for(j in 1:nrow(x)) {
     group_i <- vector(length = length(breaks)-1)
@@ -153,11 +111,37 @@ process_hist <- function(vec) {
   # get the maximum group count
   ymax <- max(x_sum$count)
   
-  list("x" = x, 
-       "breaks" = breaks, 
-       "mean_x" = mean_x, 
-       "sd_x" = sd_x, 
-       "ymax" = ymax)
+  # plot this as a histogram
+  p1 <- 
+    ggplot() +
+    geom_histogram(data = x, mapping = aes(x = y), 
+                   breaks = breaks, colour = "grey") +
+    geom_segment(mapping = aes(x = mean_x, xend = mean_x, 
+                               y = 0, yend = ymax),
+                 colour = "red", linewidth = 1) +
+    geom_rect(mapping = aes(xmin = mean_x-sd_x, xmax = mean_x+sd_x, ymin = 0, ymax = ymax),
+              alpha = 0.1, fill = "red") +
+    scale_y_continuous(expand = c(0, 0), limits = c(0, ymax + (sca_yaxis*n_vec) )) +
+    scale_x_continuous(limits = c(min_x, max_x)) +
+    xlab(NULL) +
+    ylab(NULL) +
+    theme_meta() +
+    theme(axis.text.y = element_blank(),
+          axis.ticks.y = element_blank())
+  
+  if(add_labels) {
+    p1 <- 
+      p1 +
+      annotate(geom = "text", x = mean_x, y =  (ymax + (ymax*sca_mean)), label = mean_lab,
+             size = 6, colour = "red") +
+      geom_segment(mapping = aes(x = mean_x, xend = mean_x + sd_x, 
+                               y =  (ymax + (ymax*sca_seg)), yend =  (ymax + (ymax*sca_seg))),
+                   colour = "red", linewidth = 0.5) +
+      annotate(geom = "text", x = ((mean_x) + (sd_x)/2), y = (ymax + (ymax*sca_sd)), label = sd_lab,
+               size = 6, colour = "red")
+  }
+  
+  p1
   
 }
 
@@ -207,54 +191,21 @@ theme_meta <- function(base_size = 12, base_family = "") {
 
 ```
 
-Sidebar {.sidebar}
+Sidebar {.sidebar data-width=375}
 ======================================================================
 
-This application is is designed as a teaching tool for the Central Limit Theorem (CLT), one of the most fundamental theorems in statistics. The idea of the CLT...
-
 ```{r}
-# define inputs
-dist_choices <- c("normal", "lognorm", "poisson", "uniform")
-selectInput("population_dist", label = "Select population distribution", choices = dist_choices)
-
-# distribution parameters
-numericInput("par1", "Parameter 1", value = 1, min = 0, max = 20)
-numericInput("par2", "Parameter 2", value = 1, min = 0, max = 20)
-
-# update the parameters based on their inputs
-observeEvent(input$population_dist, {
-  
-  par12 <- 
-    dplyr::tibble(dist = dist_choices, 
-                  par1min = c(0, 0, 0.1, 0 ),
-                  par1max = c(20, 20, 50, 0 ),
-                  par1val = c(0, 1, 1, 0),
-                  par1step = c(1, 1, 1, 1),
-                  par2min = c(0, 0, 0.1, 10 ),
-                  par2max = c(20, 0.6, 50, 200 ),
-                  par2val = c(1, 0.1, 1, 100),
-                  par2step = c(1, 0.1, 1, 1)) |>
-    dplyr::filter(dist == input$population_dist)
-  
-  updateNumericInput(session = session, 
-                     inputId = "par1", value = par12$par1val,
-                     min = par12$par1min, max = par12$par1max,
-                     step = par12$par1step)
-  updateNumericInput(session = session, 
-                     inputId = "par2", value = par12$par2val,
-                     min = par12$par2min, max = par12$par2max,
-                     step = par12$par2step)
-  
-})
+# population distribution parameters
+numericInput("pop_size", "Population size (N)", value = 10000, min = 1000, max = 100000)
+numericInput("shape", "Shape parameter", value = 20, min = 0, max = 15, step = 0.5)
+numericInput("rate", "Rate parameter", value = 1, min = 1, max = 20, step = 0.5)
 
 # size of the sample to take
-sliderInput("n", "Sample size", value = 30, min = 1, max = 200, step = 1)
+sliderInput("n", "Sample size (n)", value = 30, min = 1, max = 200, step = 1)
 
 # simulate the population distribution
 popx <- 
-  reactive(sim_dist(dist = input$population_dist, 
-                    n = 10000, 
-                    par1 = input$par1, par2 = input$par2))
+  reactive(rgamma(n = input$pop_size, shape = input$shape, rate = input$rate))
 
 min_popx <- reactive(min(popx()))
 max_popx <- reactive(max(popx()))
@@ -265,46 +216,34 @@ samplex <- reactive(sample_clt(pop_data = popx(), n = input$n, n_samples = 1000)
            
 ```
 
+The Central Limit Theorem states that the distribution of sample means approximates a normal distribution with a mean equal to the true population mean $(\mu)$ and a variance equal to the true population variance $(\sigma^2)$ divided by the sample size (n): $(\frac{\sigma^2}{n})$. The CLT is one of the most fundamental theorems in statistics and it allows us to do many magical things like calculate confidence intervals which is demonstrated in this application.
+
+Using this application, we can simulate a population from a Gamma distribution (**a**). This population has some true mean $(\mu)$ and some standard deviation $(\sigma)$. Then, we can draw a random sample from this population distribution of size n which gives us the sample mean $(\bar{x})$ and some sample standard deviation (s), (**b**). If we continue to take random samples of size and calculate the sample mean $(\bar{x})$ for each random sample, eventually we can construct a distribution of sample means (**c**). This distribution of sample means (i.e. $\bar{x}$ values) is the *sampling distribution of the mean*. The amazing thing is that, irrespective of the population distribution, the sampling distribution tends to approximate a normal distribution with a mean equal to the population mean $(\mu)$. Try varying the shape and rate parameters and see how stable the shape of sampling distribution is.
+
+We can then exploit this property to calculate confidence intervals. In **d**, the 95% confidence interval is calculated for each random sample. Red intervals contain the true population mean $(\mu)$. Black intervals do not. As you can see, in most cases, the 95% confidence interval, which is calculated using the sample mean $(\bar{x})$ and the sample standard deviation (s) of each sample, contain the true population mean. In fact, the actual number is almost always very close to 95% which is where the interpretation of the 95% confidence interval comes from. Specifically, the interpretation of the 95% confidence interval is that, if we were to conduct the same experiment (in this case take random samples from the population) say 1000 times, in 95% of those experiments, the calculated 95% confidence would contain the true population mean. Note that, even with very skewed population distributions, this tends to remain true. This is the power of the CLT.
+
+Application author: **James Hagan**
+
 Body {.hidden}
 ======================================================================
 
-Column {data-width=650}
+Column {data-width=100}
 -------------------------------------------------------------------------------
 
-### Population distribution
+### a. Population distribution (N)
 
 ```{r}
 
 renderPlot({
   
-  # process the data
-  listx <- process_hist(vec = popx())
-  mean_x <- listx[["mean_x"]]
-  sd_x <- listx[["sd_x"]]
-  ymax <- listx[["ymax"]]
-  
-  # plot this as a histogram
-  ggplot() +
-    geom_histogram(data = listx[["x"]], mapping = aes(x = y), 
-                   breaks = listx[["breaks"]], colour = "grey") +
-    geom_segment(mapping = aes(x = mean_x, xend = mean_x, 
-                               y = 0, yend = ymax),
-                 colour = "red", linewidth = 1, linetype = "dashed") +
-    geom_rect(mapping = aes(xmin = mean_x-sd_x, xmax = mean_x+sd_x, ymin = 0, ymax = ymax),
-              alpha = 0.1, fill = "red") +
-    annotate(geom = "text", x = mean_x, y = (ymax + 50), label = expression(mu),
-             size = 8, colour = "red") +
-    geom_segment(mapping = aes(x = mean_x, xend = mean_x + sd_x, y = (ymax + 110), yend = (ymax + 110)),
-                 colour = "red", linewidth = 0.5) +
-    annotate(geom = "text", x = ((mean_x) + (sd_x)/2), y = (ymax + 150), label = expression(sigma),
-             size = 8, colour = "red") +
-    scale_y_continuous(expand = c(0, 0), limits = c(0, ymax + 200)) +
-    scale_x_continuous(limits = c(min_popx(), max_popx())) +
-    xlab(NULL) +
-    ylab(NULL) +
-    theme_meta() +
-    theme(axis.text.y = element_blank(),
-          axis.ticks.y = element_blank())
+  # get the population-level histogram
+  process_hist(vec = popx(), min_x = min_popx(), max_x = max_popx(),
+               mean_lab = expression(mu), sd_lab = expression(sigma),
+               add_labels = TRUE,
+               sca_yaxis = 0.06,
+               sca_mean = 0.07,
+               sca_seg = 0.16,
+               sca_sd = 0.22)
   
 }
 
@@ -312,44 +251,21 @@ renderPlot({
 
 ```
 
-### One random sample from the population
+### b. One random sample from the population (i.e. size = n)
 
 ```{r}
 
 renderPlot({
   
-  # process the data
-  listx <- process_hist(vec = sample(popx(), size = input$n, replace = FALSE) )
-  mean_x <- listx[["mean_x"]]
-  sd_x <- listx[["sd_x"]]
-  ymax <- listx[["ymax"]]
-  
-  # scaling factor for the labels
-  scaling <- round(0.02*input$n, 0)
-  
-  # plot this as a histogram
-  ggplot() +
-    geom_histogram(data = listx[["x"]], mapping = aes(x = y), 
-                   breaks = listx[["breaks"]], colour = "grey") +
-    geom_segment(mapping = aes(x = mean_x, xend = mean_x, y = 0, yend = ymax),
-                 colour = "red", linewidth = 1, linetype = "dashed") +
-    geom_rect(mapping = aes(xmin = mean_x-sd_x, xmax = mean_x+sd_x, ymin = 0, ymax = ymax),
-              alpha = 0.1, fill = "red") +
-    annotate(geom = "text", x = mean_x, y = (ymax + ((50/200)*scaling)), label = expression(bar("x")),
-             size = 8, colour = "red") +
-    geom_segment(mapping = aes(x = mean_x, xend = mean_x + sd_x, y = (ymax + ((110/200)*scaling)), 
-                               yend = (ymax + ((110/200)*scaling))),
-                 colour = "red", linewidth = 0.5) +
-    annotate(geom = "text", x = ((mean_x) + (sd_x)/2), y = (ymax + ((150/200)*scaling) ), 
-             label = "s",
-             size = 8, colour = "red") +
-    scale_y_continuous(expand = c(0, 0), limits = c(0, ymax + scaling)) +
-    scale_x_continuous(limits = c(min_popx(), max_popx())) +
-    xlab(NULL) +
-    ylab(NULL) +
-    theme_meta() +
-    theme(axis.text.y = element_blank(),
-          axis.ticks.y = element_blank())
+  # get the population-level histogram
+  process_hist(vec = sample(popx(), size = input$n, replace = FALSE), 
+               min_x = min_popx(), max_x = max_popx(),
+               mean_lab = expression(bar("x")), sd_lab = "s",
+               add_labels = TRUE,
+               sca_yaxis = 0.15,
+               sca_mean = 0.08,
+               sca_seg = 0.17,
+               sca_sd = 0.26)
   
 }
 
@@ -358,35 +274,16 @@ renderPlot({
 ```
 
 
-### Sampling distribution of the mean (i.e. distribution of x-bar values)
+### c. Sampling distribution (i.e. distribution of x-bar values from 1000 seperate sample of size = n)
 
 ```{r}
 renderPlot({
   
-  # process the data
-  listx <- process_hist(vec = samplex()$sample_mean )
-  mean_x <- listx[["mean_x"]]
-  sd_x <- listx[["sd_x"]]
-  ymax <- listx[["ymax"]]
-  
-  # scaling factor for the labels
-  scaling <- round(0.02*1000, 0)
-  
-  # plot this as a histogram
-  ggplot() +
-    geom_histogram(data = listx[["x"]], mapping = aes(x = y), 
-                   breaks = listx[["breaks"]], colour = "grey") +
-    geom_segment(mapping = aes(x = mean_x, xend = mean_x, y = 0, yend = ymax),
-                 colour = "red", linewidth = 1, linetype = "dashed") +
-    geom_rect(mapping = aes(xmin = mean_x-sd_x, xmax = mean_x+sd_x, ymin = 0, ymax = ymax),
-              alpha = 0.1, fill = "red") +
-    scale_y_continuous(expand = c(0, 0), limits = c(0, ymax + scaling)) +
-    scale_x_continuous(limits = c(min_popx(), max_popx())) +
-    xlab(NULL) +
-    ylab(NULL) +
-    theme_meta() +
-    theme(axis.text.y = element_blank(),
-          axis.ticks.y = element_blank())
+  # get the population-level histogram
+  process_hist(vec = samplex()$sample_mean, 
+               min_x = min_popx(), max_x = max_popx(),
+               add_labels = FALSE,
+               sca_yaxis = 0.01)
   
 }
 
@@ -394,7 +291,73 @@ renderPlot({
 ```
 
 
-Column {data-width=500}
+Column {data-width=90}
 -------------------------------------------------------------------------------
+
+### d. Confidence intervals (95%) for each random sample
+
+```{r}
+
+renderPlot({
+  
+  # calculate confidence intervals
+  conf_df <- dplyr::bind_cols(tibble(id = 1:nrow(samplex()), samplex()))
+  
+  # calculate the 95% confidence interval for each random sample
+  
+  # lower interval
+  conf_df$ci_low <- 
+    with(conf_df, 
+         sample_mean + (qt(p = c(0.025), df = conf_df$sample_n)*sample_se))
+  
+  # upper interval
+  conf_df$ci_upp <- 
+    with(conf_df, 
+         sample_mean + (qt(p = c(0.975), df = conf_df$sample_n)*sample_se))
+  
+  # get the population mean
+  mean_x <- mean(popx())
+  
+   # check which confidence intervals contain the true mean
+  conf_df$mean_within <- 
+    with(conf_df,
+         (mean_x > ci_low) & (mean_x < ci_upp) )
+  
+  # take N random samples
+  N <- 300
+  conf_df_sub <- conf_df[sample(x = 1:nrow(conf_df), size = N, replace = FALSE),]
+  conf_df_sub$id <- 1:nrow(conf_df_sub)
+  
+  # calculate percentage within
+  perc_within <- (sum(conf_df$mean_within)/nrow(conf_df))*100
+  
+  ggplot(data = conf_df_sub) +
+  geom_segment(mapping = aes(x = ci_low, xend = ci_upp, y = id, yend = id,
+                             colour = mean_within), linewidth = 0.35, alpha = 0.8) +
+  scale_colour_manual(values = c("black", "red")) +
+  geom_segment(mapping = aes(x = mean_x, xend = mean_x, 
+                             y = 0, yend = max(id)+5), colour = "red", linewidth = 0.5) +
+  annotate(geom = "text", x = mean_x, y =  max(conf_df_sub$id)+15, label = expression(mu),
+           size = 6, colour = "red") +
+  annotate(geom = "text", x = mean_x, y =  max(conf_df_sub$id)+15, hjust = -0.5,
+           label = bquote(.(perc_within)*"% contain" ~ mu),
+           size = 5, colour = "red") +
+  scale_y_continuous(expand = expansion(mult = c(0.01, 0)), limits = c(0, N+20)) +
+  theme_meta() +
+  xlab(NULL) +
+  ylab(NULL) +
+  theme_meta() +
+  theme(axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.position = "none")
+  
+}) 
+
+```
+
+
+
+
+
 
 
