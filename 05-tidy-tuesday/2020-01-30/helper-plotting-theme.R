@@ -13,7 +13,7 @@ theme_update(
                               color = "grey40",
                               hjust = .5,
                               margin = margin(20, 0, 5, 0)),
-  plot.background = element_rect(fill = "white", color = NA),
+  plot.background = element_rect(fill = "#f0e9df", color = NA),
   panel.background = element_rect(fill = NA, color = NA),
   panel.grid = element_blank(),
   panel.spacing.y = unit(0, "lines"),

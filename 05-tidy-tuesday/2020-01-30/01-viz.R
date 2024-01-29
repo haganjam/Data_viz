@@ -15,8 +15,11 @@ font_add('fa-reg', 'fonts/Font Awesome 6 Free-Regular-400.otf')
 font_add('fa-brands', 'fonts/Font Awesome 6 Brands-Regular-400.otf')
 font_add('fa-solid', 'fonts/Font Awesome 6 Free-Solid-900.otf')
 
-# check if this worked
-font_families()
+# add a gont from google fonts
+font_add_google("Bebas Neue", "Bebas Neue")
+
+# activate showtext
+showtext_auto()
 
 # load the data directly from Github
 groundhogs <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2024/2024-01-30/groundhogs.csv')
@@ -25,6 +28,9 @@ predictions <- readr::read_csv('https://raw.githubusercontent.com/rfordatascienc
 # check the data
 head(groundhogs)
 head(predictions)
+
+# how many states are there?
+unique(groundhogs$region)
 
 # just focus on the predictions data
 
@@ -71,6 +77,17 @@ range(pred_long$year)
 
 # plot out the results
 ggplot(data = pred_long) +
+  geom_text(
+    data = dplyr::tibble(year = c(1893, 1890),
+                         votes = c(5, -5),
+                         label = c("LONGER WINTER", 
+                                   "EARLY SPRING"),
+                         pos_neg = c("positive", "negative")),
+    mapping = aes(x = year, y = votes, label = label, colour = pos_neg),
+    inherit.aes = FALSE, 
+    size = 7.5, 
+    family = "Bebas Neue",
+    alpha = 0.5) +
   geom_hline(
     yintercept = 0
     ) +
@@ -78,24 +95,18 @@ ggplot(data = pred_long) +
     mapping = aes(x = year, xend = year, y = 0, yend = votes, colour = pos_neg, alpha = sig_different_dir)
     ) +
   geom_point(
-    mapping = aes(x = year, y = votes, colour = pos_neg, alpha = sig_different_dir)
+    mapping = aes(x = year, y = votes, colour = pos_neg, alpha = sig_different_dir, size = sig_different_dir)
     ) +
   scale_colour_manual(
     values = c("#eba134","darkblue")
     ) +
   scale_alpha_manual(
-    values = c(0.2, 1)
+    values = c(0.6, 1)
     ) +
-  geom_text(
-    data = dplyr::tibble(year = 1910,
-                         votes = c(40, -40),
-                         label = c("Longer winter", 
-                                   "Early spring"),
-                         pos_neg = c("positive", "negative")),
-    mapping = aes(x = year, y = votes, label = label, colour = pos_neg),
-    inherit.aes = FALSE) +
+  scale_size_manual(values = c(0, 2)) +
   scale_y_continuous(labels = abs, position = "right") +
-  scale_x_continuous(breaks = round(seq(1887, 2024, length.out = 8), 0) ) +
+  scale_x_continuous(limits = c(1870, 2024), 
+                     breaks = round(seq(1887, 2024, length.out = 8), 0) ) +
   xlab(NULL) +
   ylab("Number of votes") +
   theme(legend.position = "none")
