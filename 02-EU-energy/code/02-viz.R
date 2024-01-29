@@ -11,6 +11,8 @@ library(ggimage)
 library(countrycode)
 library(extrafont)
 library(patchwork)
+library(ggnewscale)
+library(gggibbous)
 
 # load plotting theme
 source("02-EU-energy/code/helper-plotting-theme.R")
@@ -130,6 +132,27 @@ vert_labs <-
                 eu_member_fac = factor(rep(levels(energy$eu_member_fac), each = 2), levels(energy$eu_member_fac)),
                 label = c("Start", "End", rep(c(NA, NA), n-1)))
 
+# reference values
+ref_vals <- 
+  dplyr::tibble(year = c(NA, 2006, 2013, NA, NA, NA,NA, 2007, NA, NA),
+                eu_member_fac = factor(c(levels(energy$eu_member_fac)), levels(energy$eu_member_fac)),
+                share_min = c(NA, -350, -450, NA, NA, NA, NA, -1450, NA, NA),
+                share_max = c(NA, 350, 450, NA, NA, NA, NA, 1450, NA, NA))
+
+# reference value labels
+ref_vals_lab <- 
+  dplyr::tibble(year = c(NA, 2006, 2013, NA, NA, NA, NA, 2007, NA, NA),
+                eu_member_fac = factor(c(levels(energy$eu_member_fac)), levels(energy$eu_member_fac)),
+                share_pos = c(NA, 0, 0, NA, NA, NA, NA, 0, NA, NA),
+                label = c(NA,
+                          "371 PJ",
+                          "411 PJ",
+                          NA, NA, NA, NA,
+                          "1508 PJ", 
+                          NA, NA),
+                hjust = c(NA, 0.3, 0.3, NA, NA, NA, NA, -0.1, NA, NA),
+                vjust = c(NA, -1.7, -1.9, NA, NA, NA, NA, -0.4, NA, NA))
+
 # make a stream plot
 p1 <- 
   ggplot(data = energy,
@@ -137,13 +160,20 @@ p1 <-
   geom_stream(
     geom = "contour",
     size = 0,
-    bw = .7
+    bw = 0.65,
+    extra_span = .2, 
+    true_range = "none"
   ) +
   geom_stream(
     geom = "polygon",
-    bw = .7,
-    size = 0
+    bw = 0.65,
+    size = 0,
+    extra_span = .2, 
+    true_range = "none"
   ) +
+  scale_fill_manual(values = cols) +
+  scale_colour_manual(values = cols) +
+  scale_alpha_manual(values = c(0.9, 0.75)) +
   geom_flag(
     data = country_labels,
     inherit.aes = FALSE,
@@ -151,14 +181,13 @@ p1 <-
     size = 0.4) +
   geom_text(
     data = country_labels,
-    mapping = aes(x = year, y = share-500, label = country),
+    mapping = aes(x = year, y = share-750, label = country),
     inherit.aes = F,
-    family = "Tahoma",
     size = 2.5,
     color = "grey25",
     fontface = "plain",
     lineheight = .85,
-    hjust = 0.4
+    hjust = 0.5
   ) +
   geom_vline(
     data = dplyr::tibble(x = c(2005, 2019)),
@@ -166,6 +195,23 @@ p1 <-
     color = "#CC9966", 
     size = .75,
     linetype = "dotted") +
+  geom_errorbar(
+    data = ref_vals,
+    mapping = aes(x = year, ymin = share_min, ymax = share_max),
+    inherit.aes = FALSE,
+    color = "grey25",
+    size = 0.5,
+    width = 0.2
+  ) +
+  geom_text(
+    data = ref_vals_lab,
+    mapping = aes(x = year, y = share_pos, 
+                  label = label, hjust = hjust, vjust = vjust),
+    inherit.aes = FALSE,
+    colour = "grey25",
+    size = 3.5,
+    fontface = "bold"
+  ) +
   geom_label(
     data = vert_labs,
     mapping = aes(x = year, y = 700, label = label),
@@ -184,13 +230,11 @@ p1 <-
     space = "free"
   ) +
   ggtitle(label = "Top 10 CHP generators in the EU") +
-  scale_x_continuous(limits = c(2000, 2030), breaks = seq(2005, 2019, by = 2)) +
-  scale_fill_manual(values = cols) +
-  scale_colour_manual(values = cols) +
-  scale_alpha_manual(values = c(1, 0.9)) +
+  scale_x_continuous(limits = c(2002, 2030), breaks = seq(2005, 2019, by = 2)) +
   theme(legend.position = "none",
         axis.text.x = element_text(colour = "black"),
-        plot.title = element_text(size = 14,vjust = 2, hjust = 0.3))
+        plot.title = element_text(size = 16,vjust = 2, hjust = 0.3),
+        plot.margin = margin(c(5, 5, 5, 5)))
 plot(p1)
 
 # add text boxes
@@ -204,12 +248,12 @@ texts <-
     text = c(
       NA,
       NA,
-      "Much of **Finland's** building stock is connected to a district heating facility with more than 90% of apartment blocks using CHP systems. Many of these systems are powered by renewable fuels, mostly wood and various waste products",
+      "More than 90% of **Finland's** apartment blocks use CHP systems. Many are powered by renewable fuels, mostly wood.",
       NA,
       "**Germany** produces the most energy with CHP systems. Moreover, Germany's CHP systems are the most diversified and use all the different fuel sources.",
       NA,
       NA,
-      "**Poland** uses solid fossil fuels (e.g. coal) for the majority of its CHP systems. However, the power and heat generated from CHP systems in Poland has declined substantially since 2008",
+      "**Poland** uses solid fossil fuels (e.g. coal) for the majority of its CHP systems.",
       NA,
       "Almost all of **Sweden's** CHP systems rely on renewable energy"),
     vjust = 0.5
@@ -227,49 +271,120 @@ p1 <-
       vjust = vjust
     ),
     inherit.aes = FALSE,
-    family = "Tahoma",
-    size = 2.7,
+    size = 2.5,
     fill = "grey95",
-    width = unit(200, "pt"),
+    width = unit(150, "pt"),
     hjust = 0.4
   )
+plot(p1)
   
+# use moon plots for the legends
+leg_dat <- dplyr::tibble(
+  x = rep(c(1.1, 2, 2.9, 1.1, 2), 2),
+  y = rep(c(rep(2, 3), rep(1.5, 2)), 2),
+  ratio = c(rep(0.3, 5), rep(0.7, 5)),
+  right = rep(c(FALSE, TRUE), each = 5),
+  energy_source = factor(rep(c("solid_ff", "oil", "gas", "renew", "other"),2),
+                         levels = c("solid_ff", "oil", "gas", "renew", "other")))
+
+leg_text <- dplyr::tibble(
+  x = c(1.1, 2, 2.9, 1.1, 2),
+  y = rep(c(rep(2, 3), rep(1.5, 2))),
+  label = c("Solid fossil fuels", 
+            "Oil products",
+            "Natural gas",
+            "Renewables",
+            "Other"))
+
+leg <- 
+  ggplot() +
+  gggibbous::geom_moon(
+    data = leg_dat,
+    mapping = aes(
+      x = x, y = y, ratio = ratio, right = right, fill = energy_source, alpha = right),
+    size = 20,
+    colour = NA) +
+  geom_text(
+    data = leg_text,
+    mapping = aes(x = x, y = y, label = label),
+    size = 3.5,
+    color = "grey25",
+    vjust = -3.6) +
+  scale_fill_manual(values = cols) +
+  scale_alpha_manual(values = c(0.75, 0.9)) +
+  scale_x_continuous(limits = c(0.75, 3.25)) +
+  scale_y_continuous(limits = c(1.25, 2.25)) +
+  theme(legend.position = "none",
+        plot.margin = margin(c(10, 10, 10, 10)),
+        axis.text.x = element_blank())
+plot(leg)
+
 # text on the left
-p2 <- 
+text_plot <- 
   ggplot() +
   geom_textbox(
   data = dplyr::tibble(
     x = 0,
-    y = c(1.5, 0.9, -0.5),
+    y = c(1.45, 1.1),
     label = c(
-      "<b style='font-size:14pt'>What fuels are European countries using for Combined Heat and Power (CHP)?</b><br><br>Combined Heat and Power (CHP), also known as cogeneration, is a potentially crucial aspect of EU net-zero strategies. These systems use power stations or heat engines to generate both electricity and heat simultaneously. For example, some CHP systems use high-temperature heat to power a turbine and generate electricity and then distribute the excess heat to heat water or air in homes, offices etc. These systems can be highly efficient and, therefore, could play an important role in the climate transition.",
-      "Many European Union countries already use these systems but they tend to differ in the fuels that are used. More specifically, there are ",
-      "<span style='color:#656565'>For reference: The maximum fuel used for CHP by a country in a year was Poland in 2006 (1525 Net Calorific).<br>*Visualization by James G. Hagan • Data from Eurostat*</span>"),
-    v = c(0.5, .5, 1.3)
+      "<b style='font-size:14pt'>**What fuels are European countries using for Combined Heat and Power (CHP)?**</b><br><br>Combined Heat and Power (CHP), also known as cogeneration, is a potentially crucial aspect of EU net-zero strategies. These systems use power stations or heat engines to generate both electricity and heat simultaneously. For example, some CHP systems use high-temperature heat to power a turbine and generate electricity and then distribute the excess heat to heat water or air in homes, offices etc. These systems can be highly efficient and, therefore, could play an important role in the climate transition.",
+      "Many European Union countries already use these systems but they tend to differ in the fuels that are used. **Eurostat** recognises five major fuel types: solid fossil fuels (e.g. coal), oil products, natural gas, renewables (e.g. wood, organic waste) and other fuels (e.g. industrial waste). The countries that use the most fuel for CHP are: **Austria**, **Denmark**, **Finland**, **France**, **Germany**, **Italy**, **Netherlands**, **Poland**, **Spain** and **Sweden**. Poland and Germany are the biggest CHP fuel users in Europe. The Nordic countries are strong represented and also use significant amounts of renewable fuels.")
   ),
   mapping = aes(
     x = x, 
     y = y, 
-    label = label, 
-    vjust = v),
-  width = unit(5, "inch"),
+    label = label),
+  width = unit(4, "inch"),
   color = "black",
-  family = "Tahoma",
   lineheight = 1.7,
-  size = 3,
+  size = 2.7,
   fill = NA,
-  box.colour = NA,
-  hjust = 0
+  box.colour = NA
   ) +
   coord_cartesian(clip = "off") +
-  scale_x_continuous(limits = c(0, 1)) +
-  scale_y_continuous(limits = c(-0.6, 1.5)) +
+  scale_y_continuous(limits = c(0.9, 1.5)) +
   theme(axis.text.x = element_blank(),
-        plot.margin = margin(c(-5, 5, 5, 5)))
-plot(p2)
+        plot.margin = margin(c(10, 10, 10, 10)))
+plot(text_plot)
+
+text_ref <- 
+  ggplot() +
+  geom_textbox(
+    data = dplyr::tibble(
+      x = 0,
+      y = c(0),
+      label = c(
+        "<span style='color:#656565'>**Notes:** Fuel use reported in Peta Joules (PJ) as Net calorific values.<br> 
+        Visualization by James G. Hagan.<br> 
+        Data from *Eurostat*."),
+    ),
+    mapping = aes(
+      x = x, 
+      y = y, 
+      label = label),
+    width = unit(4, "inch"),
+    color = "black",
+    family = "Verdana",
+    lineheight = 1.7,
+    size = 2.5,
+    fill = NA,
+    box.colour = NA,
+  ) +
+  coord_cartesian(clip = "off") +
+  theme(axis.text.x = element_blank(),
+        plot.margin = margin(c(-5, 10, -5, 10)))
+plot(text_ref)
+
 
 # combine these plots
-((p2 | p1)  + plot_layout(widths = c(0.5, 1)))
+g <- ( (text_plot/leg/text_ref) ) + plot_layout(heights = c(1, 0.75, 0.025))
+g <- ( (g | p1)  + plot_layout(widths = c(0.5, 1)))
+plot(g)
+
+# export the plot
+ggsave(filename = "02-EU-energy/figures-tables/fig1.pdf", g,
+       width = 27, height = 17, units = "cm")
+
 
 
 
