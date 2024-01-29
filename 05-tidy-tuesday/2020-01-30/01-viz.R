@@ -3,9 +3,20 @@
 
 # load relevant libraries
 library(ggplot2)
+library(dplyr)
+library(ggtext)
+library(showtext)
 
 # load the plotting theme
 source("05-tidy-tuesday/2020-01-30/helper-plotting-theme.R")
+
+# load some new fonts
+font_add('fa-reg', 'fonts/Font Awesome 6 Free-Regular-400.otf')
+font_add('fa-brands', 'fonts/Font Awesome 6 Brands-Regular-400.otf')
+font_add('fa-solid', 'fonts/Font Awesome 6 Free-Solid-900.otf')
+
+# check if this worked
+font_families()
 
 # load the data directly from Github
 groundhogs <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2024/2024-01-30/groundhogs.csv')
@@ -26,8 +37,8 @@ pred_sum <-
   dplyr::group_by(year) |>
   dplyr::summarise(n = n(),
                    success = sum(shadow), .groups = "drop") |>
-  mutate(positive = success/n,
-         negative = ((n-success)/n))
+  mutate(positive = success,
+         negative = -((n-success)))
 
 # check in which years, the proportions were different from random
 pred_sum$sig_different <-
@@ -47,7 +58,7 @@ pred_long <-
 pred_x <- split(pred_long, paste0(pred_long$year, pred_long$sig_different))
 pred_x <- 
   lapply(pred_x, function(x) {
-    y <- x$votes[1] > x$votes[2]
+    y <- x$votes[1] > abs(x$votes[2])
     if(y == FALSE) {c(FALSE, TRUE)} else {c(TRUE, FALSE)}
 } )
 names(pred_x) <- NULL
@@ -60,16 +71,33 @@ range(pred_long$year)
 
 # plot out the results
 ggplot(data = pred_long) +
-  geom_hline(yintercept = 0) +
-  geom_segment(mapping = aes(x = year, xend = year, 
-                             y = 0, yend = proportion, colour = pos_neg, alpha = sig_different_dir)) +
-  geom_point(mapping = aes(x = year, y = proportion, size = n, colour = pos_neg, alpha = sig_different_dir)) +
-  scale_colour_manual(values = c("#eba134","darkblue")) +
-  scale_alpha_manual(values = c(0.2, 1)) +
-  scale_size(range = c(0.5,4)) +
-  scale_y_continuous(limits = c(-1.2, 1.2)) +
+  geom_hline(
+    yintercept = 0
+    ) +
+  geom_segment(
+    mapping = aes(x = year, xend = year, y = 0, yend = votes, colour = pos_neg, alpha = sig_different_dir)
+    ) +
+  geom_point(
+    mapping = aes(x = year, y = votes, colour = pos_neg, alpha = sig_different_dir)
+    ) +
+  scale_colour_manual(
+    values = c("#eba134","darkblue")
+    ) +
+  scale_alpha_manual(
+    values = c(0.2, 1)
+    ) +
+  geom_text(
+    data = dplyr::tibble(year = 1910,
+                         votes = c(40, -40),
+                         label = c("Longer winter", 
+                                   "Early spring"),
+                         pos_neg = c("positive", "negative")),
+    mapping = aes(x = year, y = votes, label = label, colour = pos_neg),
+    inherit.aes = FALSE) +
+  scale_y_continuous(labels = abs, position = "right") +
+  scale_x_continuous(breaks = round(seq(1887, 2024, length.out = 8), 0) ) +
   xlab(NULL) +
-  ylab("Proportion predicted") +
+  ylab("Number of votes") +
   theme(legend.position = "none")
 
 

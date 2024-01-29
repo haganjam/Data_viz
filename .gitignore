@@ -50,3 +50,8 @@ rsconnect/
 
 # ignore ds store files
 *.DS_Store
+
+# ignore the font ots files
+*.otf
+
+

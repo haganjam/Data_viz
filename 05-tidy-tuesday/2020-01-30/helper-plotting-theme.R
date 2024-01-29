@@ -26,5 +26,7 @@ theme_update(
                                    fill = "grey95"),
   legend.key.height = unit(.25, "lines"),
   legend.key.width = unit(2.5, "lines"),
-  plot.margin = margin(c(20, 20, 20, 20))
+  plot.margin = margin(c(20, 20, 20, 20)),
+  axis.line.y = element_line(color="black", size = 0.4),
+  axis.ticks.y = element_line(colour = "black", size = 0.4)
 )
