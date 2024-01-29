@@ -3,7 +3,7 @@
 # https://github.com/z3tt/TidyTuesday/blob/main/R/2020_27_ClaremontRunXMen.Rmd
 
 ## ggplot theme
-theme_set(theme_minimal(base_family = "Courier New", base_size = 10))
+theme_set(theme_minimal(base_family = "Courier New", base_size = 12))
 
 theme_update(
   plot.title = element_text(size = 18,
