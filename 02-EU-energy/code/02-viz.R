@@ -42,7 +42,7 @@ energy <-
   dplyr::filter(!(eu_member %in% c("Turkey", "United Kingdom", "Croatia", "Cyprus")))
 
 # pick the n EU countries with the highest total CHP
-n <- 10
+n <- 8
 eu_sort <- 
   energy |>
   dplyr::group_by(eu_member) |>
@@ -134,24 +134,23 @@ vert_labs <-
 
 # reference values
 ref_vals <- 
-  dplyr::tibble(year = c(NA, 2006, 2013, NA, NA, NA,NA, 2007, NA, NA),
+  dplyr::tibble(year = c(2006, 2013, NA, NA, NA,NA, 2007, NA),
                 eu_member_fac = factor(c(levels(energy$eu_member_fac)), levels(energy$eu_member_fac)),
-                share_min = c(NA, -350, -450, NA, NA, NA, NA, -1450, NA, NA),
-                share_max = c(NA, 350, 450, NA, NA, NA, NA, 1450, NA, NA))
+                share_min = c(-350, -450, NA, NA, NA, NA, -1450, NA),
+                share_max = c(350, 450, NA, NA, NA, NA, 1450, NA))
 
 # reference value labels
 ref_vals_lab <- 
-  dplyr::tibble(year = c(NA, 2006, 2013, NA, NA, NA, NA, 2007, NA, NA),
+  dplyr::tibble(year = c(2006, 2013, NA, NA, NA, NA, 2007, NA),
                 eu_member_fac = factor(c(levels(energy$eu_member_fac)), levels(energy$eu_member_fac)),
-                share_pos = c(NA, 0, 0, NA, NA, NA, NA, 0, NA, NA),
-                label = c(NA,
-                          "371 PJ",
+                share_pos = c( 0, 0, NA, NA, NA, NA, 0, NA),
+                label = c("371 PJ",
                           "411 PJ",
                           NA, NA, NA, NA,
                           "1508 PJ", 
-                          NA, NA),
-                hjust = c(NA, 0.3, 0.3, NA, NA, NA, NA, -0.1, NA, NA),
-                vjust = c(NA, -1.7, -1.9, NA, NA, NA, NA, -0.4, NA, NA))
+                          NA),
+                hjust = c(0.3, 0.3, NA, NA, NA, NA, -0.1, NA),
+                vjust = c(2.5, -1.9, NA, NA, NA, NA, -0.4, NA))
 
 # make a stream plot
 p1 <- 
@@ -160,13 +159,13 @@ p1 <-
   geom_stream(
     geom = "contour",
     size = 0,
-    bw = 0.65,
+    bw = 0.7,
     extra_span = .2, 
     true_range = "none"
   ) +
   geom_stream(
     geom = "polygon",
-    bw = 0.65,
+    bw = 0.7,
     size = 0,
     extra_span = .2, 
     true_range = "none"
@@ -178,7 +177,7 @@ p1 <-
     data = country_labels,
     inherit.aes = FALSE,
     mapping = aes(x = year, y = share, image = country_code), 
-    size = 0.4) +
+    size = 0.4, alpha = 1) +
   geom_text(
     data = country_labels,
     mapping = aes(x = year, y = share-750, label = country),
@@ -209,15 +208,15 @@ p1 <-
                   label = label, hjust = hjust, vjust = vjust),
     inherit.aes = FALSE,
     colour = "grey25",
-    size = 3.5,
+    size = 2.5,
     fontface = "bold"
   ) +
   geom_label(
     data = vert_labs,
-    mapping = aes(x = year, y = 700, label = label),
+    mapping = aes(x = year, y = 1000, label = label),
     inherit.aes = F,
     family = "Tahoma",
-    size = 3,
+    size = 2.5,
     color = "grey25",
     fill = "#FDEBD0",
     label.size = NA,
@@ -229,11 +228,11 @@ p1 <-
     scales = "fixed", 
     space = "free"
   ) +
-  ggtitle(label = "Top 10 CHP generators in the EU") +
+  ggtitle(label = "Top 8 CHP fuel-users in the EU") +
   scale_x_continuous(limits = c(2002, 2030), breaks = seq(2005, 2019, by = 2)) +
   theme(legend.position = "none",
-        axis.text.x = element_text(colour = "black"),
-        plot.title = element_text(size = 16,vjust = 2, hjust = 0.3),
+        axis.text.x = element_text(colour = "black", size = 9),
+        plot.title = element_text(size = 14,vjust = 2, hjust = 0.2),
         plot.margin = margin(c(5, 5, 5, 5)))
 plot(p1)
 
@@ -243,10 +242,9 @@ texts <-
     year = rep(c(2025), n),
     share = rep(0, n),
     eu_member_fac = factor(levels(energy$eu_member_fac), levels(energy$eu_member_fac)),
-    energy_source = factor(c("other", "gas", "renew", "oil", "oil", "oil", "oil", "solid_ff", "oil", "renew"),
+    energy_source = factor(c("gas", "renew", "oil", "oil", "oil", "oil", "solid_ff", "oil"),
                            levels = c("solid_ff", "oil", "gas", "renew", "other")),
     text = c(
-      NA,
       NA,
       "More than 90% of **Finland's** apartment blocks use CHP systems. Many are powered by renewable fuels, mostly wood.",
       NA,
@@ -254,8 +252,7 @@ texts <-
       NA,
       NA,
       "**Poland** uses solid fossil fuels (e.g. coal) for the majority of its CHP systems.",
-      NA,
-      "Almost all of **Sweden's** CHP systems rely on renewable energy"),
+      NA),
     vjust = 0.5
   )
 
@@ -271,12 +268,17 @@ p1 <-
       vjust = vjust
     ),
     inherit.aes = FALSE,
-    size = 2.5,
+    size = 2,
     fill = "grey95",
-    width = unit(150, "pt"),
+    width = unit(125, "pt"),
     hjust = 0.4
   )
 plot(p1)
+
+# export the plot
+ggsave( "02-EU-energy/figures-tables/figtest.pdf", p1,
+        width = 19, height = 11, device = cairo_pdf)
+
   
 # use moon plots for the legends
 leg_dat <- dplyr::tibble(
