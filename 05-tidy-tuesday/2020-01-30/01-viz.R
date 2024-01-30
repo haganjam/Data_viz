@@ -17,6 +17,7 @@ font_add('fa-solid', 'fonts/Font Awesome 6 Free-Solid-900.otf')
 
 # add a gont from google fonts
 font_add_google("Bebas Neue", "Bebas Neue")
+font_add_google("Libre Caslon Text", "Caslon")
 
 # activate showtext
 showtext_auto()
@@ -31,6 +32,11 @@ head(predictions)
 
 # how many states are there?
 unique(groundhogs$region)
+
+# how many are there from Canada and USA?
+groundhogs |>
+  dplyr::group_by(country) |>
+  dplyr::summarise(n = n())
 
 # just focus on the predictions data
 
@@ -75,10 +81,50 @@ pred_long$sig_different_dir <- (pred_long$sig_different & do.call("c", pred_x))
 # check the range of years
 range(pred_long$year)
 
+# check number of ground hogs
+pred_sum
+
+# set-up the legend
+leg <- 
+  dplyr::tibble(year = c(1887),
+                y = c(20, 15, -20, -15),
+                yend = c(22.5, 17.5, -22.5, -17.5),
+                label = rep(c("Consensus", "Inconclusive"), 2),
+                sig_different_dir = c(TRUE, FALSE, TRUE, FALSE),
+                pos_neg = c("positive", "positive", "negative", "negative"),
+                vjust = c(-1, -1, 1, 1))
+
 # plot out the results
-ggplot(data = pred_long) +
+p1 <- 
+  ggplot(data = pred_long) +
+  geom_segment(
+    data = leg,
+    mapping = aes(x = year, xend = year, y = y, yend = yend, colour = pos_neg, alpha = sig_different_dir),
+    inherit.aes = FALSE
+  ) +
+  geom_point(
+    data = leg,
+    mapping = aes(x = year, y = yend, colour = pos_neg, 
+                  alpha = sig_different_dir, shape = sig_different_dir, size = sig_different_dir),
+    inherit.aes = FALSE
+  ) +
   geom_text(
-    data = dplyr::tibble(year = c(1893, 1890),
+    data = leg,
+    mapping = aes(x = year, y = y, colour = pos_neg, label = label, vjust = vjust),
+    size = 3,
+    hjust = -0.2
+  ) +
+  geom_segment(
+    mapping = aes(x = 1969, xend = 1969, y = -42, yend = 41),
+    linetype = "dotted",
+    colour = "grey75"
+  ) +
+  geom_segment(
+    mapping = aes(x = 1880, xend = 1880, y = -42, yend = 41),
+    linewidth = 0.225
+  ) +
+  geom_text(
+    data = dplyr::tibble(year = c(1900, 1897),
                          votes = c(5, -5),
                          label = c("LONGER WINTER", 
                                    "EARLY SPRING"),
@@ -87,29 +133,65 @@ ggplot(data = pred_long) +
     inherit.aes = FALSE, 
     size = 7.5, 
     family = "Bebas Neue",
-    alpha = 0.5) +
-  geom_hline(
-    yintercept = 0
-    ) +
+    alpha = 0.6) +
+  ggtext::geom_richtext(
+    data = dplyr::tibble(year = c(1940, 1935),
+                         votes = c(5, -5),
+                         label = c("<span style='font-family:fa-solid'>&#xf2dc;</span>", 
+                                   "<span style='font-family:fa-solid'>&#xf06c;</span>"),
+                         pos_neg = c("positive", "negative")),
+    mapping = aes(x = year, y = votes, label = label, colour = pos_neg),
+    inherit.aes = FALSE, 
+    size = 7.5,
+    alpha = 0.9,
+    fill = NA, label.color = NA) +
   geom_segment(
-    mapping = aes(x = year, xend = year, y = 0, yend = votes, colour = pos_neg, alpha = sig_different_dir)
-    ) +
+    mapping = aes(x = 1880, xend = 2024, y = 0, yend = 0),
+    linewidth = 0.225) +
+  geom_segment(
+    mapping = aes(x = year, xend = year, y = 0, yend = votes, colour = pos_neg, alpha = sig_different_dir)) +
   geom_point(
-    mapping = aes(x = year, y = votes, colour = pos_neg, alpha = sig_different_dir, size = sig_different_dir)
-    ) +
+    mapping = aes(x = year, y = votes, colour = pos_neg, 
+                  alpha = sig_different_dir, size = sig_different_dir,
+                  shape = sig_different_dir)) +
   scale_colour_manual(
     values = c("#eba134","darkblue")
     ) +
   scale_alpha_manual(
-    values = c(0.6, 1)
+    values = c(0.25, 1)
     ) +
-  scale_size_manual(values = c(0, 2)) +
-  scale_y_continuous(labels = abs, position = "right") +
-  scale_x_continuous(limits = c(1870, 2024), 
-                     breaks = round(seq(1887, 2024, length.out = 8), 0) ) +
+  scale_size_manual(values = c(1, 3)) +
+  scale_shape_manual(values = c(16, 18)) +
+  scale_y_continuous(expand = c(0, 0), limits = c(-43, 60), 
+                     breaks = seq(-40, 40, 20), labels = abs, position = "left") +
+  scale_x_continuous(limits = c(1880, 2060), 
+                     breaks = round(seq(1887, 2023, length.out = 8), 0),
+                     expand = c(0, 0)) +
+  geom_segment(
+    mapping = aes(x = 2023, xend = 2040, y = -42, yend = -32),
+    colour = "#eba134"
+  ) +
   xlab(NULL) +
   ylab("Number of votes") +
-  theme(legend.position = "none")
+  theme(legend.position = "none",
+        axis.line.y = element_blank())
+plot(p1)
 
+# add text
+# add text boxes
+texts <-
+  tibble(
+    year = c(2025, 1969),
+    text = c(
+      NA,
+      "More than 90% of **Finland's** apartment blocks use CHP systems. Many are powered by renewable fuels, mostly wood.",
+      NA,
+      "**Germany** produces the most energy with CHP systems. Moreover, Germany's CHP systems are the most diversified and use all the different fuel sources.",
+      NA,
+      NA,
+      "**Poland** uses solid fossil fuels (e.g. coal) for the majority of its CHP systems.",
+      NA),
+    vjust = 0.5
+  )
 
 
