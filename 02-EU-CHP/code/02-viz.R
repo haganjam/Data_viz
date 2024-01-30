@@ -15,13 +15,13 @@ library(ggnewscale)
 library(gggibbous)
 
 # load plotting theme
-source("02-EU-energy/code/helper-plotting-theme.R")
+source("02-EU-CHP/code/helper-plotting-theme.R")
 
 # choose some fonts
 choose_font(c("GillSans",  "Verdana", "sans"), quiet = TRUE)
 
 # load the cleaned data
-energy <- readRDS(file = "02-EU-energy/data/EU_energy_data.rds")
+energy <- readRDS(file = "02-EU-CHP/data/EU_energy_data.rds")
 head(energy)
 summary(energy)
 
@@ -389,7 +389,11 @@ h <- ( (g | p1)  + plot_layout(widths = c(0.55, 1)))
 # plot(g)
 
 # export the plot
-ggsave(filename = "02-EU-energy/figures-tables/fig1.pdf", h,
+ggsave(filename = "02-EU-CHP/figures-tables/fig1.pdf", h,
        width = 12, height = 9, device = cairo_pdf)
+
+pdftools::pdf_convert(pdf = "02-EU-CHP/figures-tables/fig1.pdf",
+                      filenames = "02-EU-CHP/figures-tables/fig1.png",
+                      format = "png", dpi = 600)
 
 ### END
