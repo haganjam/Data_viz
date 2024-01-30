@@ -9,4 +9,6 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # TidyTuesday: 2024-01-30 (week 5)
 
-![](figures-tables/fig1.pdf)
+```{r label}
+knitr::include_graphics("figures-tables/fig1.pdf") 
+```
