@@ -10,18 +10,6 @@ library(showtext)
 # load the plotting theme
 source("05-tidy-tuesday/2020-01-30/helper-plotting-theme.R")
 
-# load some new fonts
-font_add('fa-reg', 'fonts/Font Awesome 6 Free-Regular-400.otf')
-font_add('fa-brands', 'fonts/Font Awesome 6 Brands-Regular-400.otf')
-font_add('fa-solid', 'fonts/Font Awesome 6 Free-Solid-900.otf')
-
-# add a gont from google fonts
-font_add_google("Bebas Neue", "Bebas Neue")
-font_add_google("Libre Caslon Text", "Caslon")
-
-# activate showtext
-showtext_auto()
-
 # load the data directly from Github
 groundhogs <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2024/2024-01-30/groundhogs.csv')
 predictions <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2024/2024-01-30/predictions.csv')
@@ -87,12 +75,12 @@ pred_sum
 # set-up the legend
 leg <- 
   dplyr::tibble(year = c(1887),
-                y = c(20, 15, -20, -15),
-                yend = c(22.5, 17.5, -22.5, -17.5),
-                label = rep(c("Consensus", "Inconclusive"), 2),
+                y = c(30, 25, -30, -25),
+                yend = c(32.5, 27.5, -32.5, -27.5),
+                label = rep(c("- Consensus", "- Inconclusive"), 2),
                 sig_different_dir = c(TRUE, FALSE, TRUE, FALSE),
                 pos_neg = c("positive", "positive", "negative", "negative"),
-                vjust = c(-1, -1, 1, 1))
+                vjust = c(-0.6, -0.6, 1.3, 1.3))
 
 # plot out the results
 p1 <- 
@@ -112,7 +100,8 @@ p1 <-
     data = leg,
     mapping = aes(x = year, y = y, colour = pos_neg, label = label, vjust = vjust),
     size = 3,
-    hjust = -0.2
+    hjust = -0.2,
+    family = "Ubuntu"
   ) +
   geom_segment(
     mapping = aes(x = 1969, xend = 1969, y = -42, yend = 41),
@@ -124,27 +113,27 @@ p1 <-
     linewidth = 0.225
   ) +
   geom_text(
-    data = dplyr::tibble(year = c(1900, 1897),
+    data = dplyr::tibble(year = c(1900, 1900),
                          votes = c(5, -5),
                          label = c("LONGER WINTER", 
-                                   "EARLY SPRING"),
+                                   "EARLY SPRING   "),
                          pos_neg = c("positive", "negative")),
     mapping = aes(x = year, y = votes, label = label, colour = pos_neg),
     inherit.aes = FALSE, 
     size = 7.5, 
     family = "Bebas Neue",
     alpha = 0.6) +
-  ggtext::geom_richtext(
-    data = dplyr::tibble(year = c(1940, 1935),
-                         votes = c(5, -5),
-                         label = c("<span style='font-family:fa-solid'>&#xf2dc;</span>", 
-                                   "<span style='font-family:fa-solid'>&#xf06c;</span>"),
-                         pos_neg = c("positive", "negative")),
-    mapping = aes(x = year, y = votes, label = label, colour = pos_neg),
-    inherit.aes = FALSE, 
-    size = 7.5,
-    alpha = 0.9,
-    fill = NA, label.color = NA) +
+  # ggtext::geom_richtext(
+    # data = dplyr::tibble(year = c(1940, 1935),
+                         # votes = c(5, -5),
+                         # label = c("<span style='font-family:fa-solid'>&#xf2dc;</span>", 
+                                   # "<span style='font-family:fa-solid'>&#xf06c;</span>"),
+                         # pos_neg = c("positive", "negative")),
+    # mapping = aes(x = year, y = votes, label = label, colour = pos_neg),
+    # inherit.aes = FALSE, 
+    # size = 7.5,
+    # alpha = 0.9,
+    # fill = NA, label.color = NA) +
   geom_segment(
     mapping = aes(x = 1880, xend = 2024, y = 0, yend = 0),
     linewidth = 0.225) +
@@ -162,9 +151,9 @@ p1 <-
     ) +
   scale_size_manual(values = c(1, 3)) +
   scale_shape_manual(values = c(16, 18)) +
-  scale_y_continuous(expand = c(0, 0), limits = c(-43, 60), 
+  scale_y_continuous(expand = c(0, 0), limits = c(-43, 50), 
                      breaks = seq(-40, 40, 20), labels = abs, position = "left") +
-  scale_x_continuous(limits = c(1880, 2060), 
+  scale_x_continuous(limits = c(1880, 2100), 
                      breaks = round(seq(1887, 2023, length.out = 8), 0),
                      expand = c(0, 0)) +
   geom_segment(
@@ -174,24 +163,74 @@ p1 <-
   xlab(NULL) +
   ylab("Number of votes") +
   theme(legend.position = "none",
-        axis.line.y = element_blank())
+        axis.line.y = element_blank(),
+        plot.title = element_blank(),
+        axis.title.y = element_text(hjust = 0.4, colour = "grey40"))
 plot(p1)
 
-# add text
 # add text boxes
 texts <-
-  tibble(
+  dplyr::tibble(
     year = c(2025, 1969),
+    y = c(-30, 35),
+    neg_pos = c("negative", "positive"),
     text = c(
-      NA,
-      "More than 90% of **Finland's** apartment blocks use CHP systems. Many are powered by renewable fuels, mostly wood.",
-      NA,
-      "**Germany** produces the most energy with CHP systems. Moreover, Germany's CHP systems are the most diversified and use all the different fuel sources.",
-      NA,
-      NA,
-      "**Poland** uses solid fossil fuels (e.g. coal) for the majority of its CHP systems.",
-      NA),
-    vjust = 0.5
+      "In 2022, there was a consensus among groundhogs that it would be an early spring (41/79 votes),",
+      "Prior to 1969, no more than four groundhog predictions were recorded in any given year."),
+    vjust = c(0.15, 0),
+    hjust = c(-0.2, 0.5)
   )
+
+p2 <- 
+  p1 +
+  geom_textbox(
+    data = texts,
+    mapping = aes(
+      x = year,
+      y = y,
+      label = text,
+      colour = neg_pos,
+      hjust = hjust,
+      vjust = vjust
+    ),
+    inherit.aes = FALSE,
+    size = 2.75,
+    fill = "grey95",
+    width = unit(120, "pt"),
+    family = "Caslon")
+plot(p2)
+
+# description text
+text_des <- dplyr::tibble(
+  year = c(2067),
+  y = c(18),
+  text = c(
+    "<b style='font-size:14pt'>**Groundhog Day weather predictions through time**</b><br><br> In North American tradition, groundhogs (*Marmota monax*) are consulted on the 2nd of February for a weather prediction. Specifically, if a groundhog is deemed to see its own shadow, there should be six more weeks of winter. If, however, the groundhog does not see its shadow, it means that there will be an early spring.<br><br>At **GROUNDHOG-DAY.COM**, they have collated these predictions from across Canada and the United States. Each vertical bar depicts the number of predictions made by groundhogs for either a longer winter or an early spring. Bars ending with a filled diamond indicate a consensus among groundhog's predictions. This consensus was determined by testing whether there was less than a 20% chance that the predictions were random using a test of equal proportions.<br><br>*Visualization by James G. Hagan*<br>Data from **GROUNDHOG-DAY.COM**"
+    ))
+
+p3 <-
+  p2 +
+  geom_textbox(
+    data = text_des,
+    mapping = aes(
+      x = year,
+      y = y,
+      label = text
+    ),
+    inherit.aes = FALSE,
+    size = 2.75,
+    width = unit(200, "pt"),
+    family = "Caslon",
+    fill = NA,
+    box.colour = NA,
+    colour = "grey40") +
+  theme(plot.margin = margin(c(10, 10, 20, 20)) )
+plot(p3)
+
+
+
+
+
+
 
 
