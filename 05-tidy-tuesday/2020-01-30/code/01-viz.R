@@ -8,7 +8,7 @@ library(ggtext)
 library(showtext)
 
 # load the plotting theme
-source("05-tidy-tuesday/2020-01-30/helper-plotting-theme.R")
+source("05-tidy-tuesday/2020-01-30/code/helper-plotting-theme.R")
 
 # load the data directly from Github
 groundhogs <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2024/2024-01-30/groundhogs.csv')
@@ -80,7 +80,7 @@ leg <-
                 label = rep(c("- Consensus", "- Inconclusive"), 2),
                 sig_different_dir = c(TRUE, FALSE, TRUE, FALSE),
                 pos_neg = c("positive", "positive", "negative", "negative"),
-                vjust = c(-0.6, -0.6, 1.3, 1.3))
+                vjust = c(-0.6, -0.6, 1.4, 1.4))
 
 # plot out the results
 p1 <- 
@@ -99,7 +99,7 @@ p1 <-
   geom_text(
     data = leg,
     mapping = aes(x = year, y = y, colour = pos_neg, label = label, vjust = vjust),
-    size = 3,
+    size = 3.5,
     hjust = -0.2,
     family = "Ubuntu"
   ) +
@@ -110,7 +110,8 @@ p1 <-
   ) +
   geom_segment(
     mapping = aes(x = 1880, xend = 1880, y = -42, yend = 41),
-    linewidth = 0.225
+    linewidth = 0.6,
+    colour = "grey40"
   ) +
   geom_text(
     data = dplyr::tibble(year = c(1900, 1900),
@@ -136,7 +137,7 @@ p1 <-
     # fill = NA, label.color = NA) +
   geom_segment(
     mapping = aes(x = 1880, xend = 2024, y = 0, yend = 0),
-    linewidth = 0.225) +
+    linewidth = 0.35, colour = "grey40") +
   geom_segment(
     mapping = aes(x = year, xend = year, y = 0, yend = votes, colour = pos_neg, alpha = sig_different_dir)) +
   geom_point(
@@ -151,7 +152,7 @@ p1 <-
     ) +
   scale_size_manual(values = c(1, 3)) +
   scale_shape_manual(values = c(16, 18)) +
-  scale_y_continuous(expand = c(0, 0), limits = c(-43, 50), 
+  scale_y_continuous(expand = c(0, 0), limits = c(-50, 50), 
                      breaks = seq(-40, 40, 20), labels = abs, position = "left") +
   scale_x_continuous(limits = c(1880, 2100), 
                      breaks = round(seq(1887, 2023, length.out = 8), 0),
@@ -161,11 +162,12 @@ p1 <-
     colour = "#eba134"
   ) +
   xlab(NULL) +
-  ylab("Number of votes") +
+  ylab("Number of predictions") +
   theme(legend.position = "none",
         axis.line.y = element_blank(),
         plot.title = element_blank(),
-        axis.title.y = element_text(hjust = 0.4, colour = "grey40"))
+        axis.title.y = element_text(hjust = 0.5, colour = "grey40"),
+        axis.text.x = element_text(vjust =10))
 plot(p1)
 
 # add text boxes
@@ -224,13 +226,30 @@ p3 <-
     fill = NA,
     box.colour = NA,
     colour = "grey40") +
-  theme(plot.margin = margin(c(10, 10, 20, 20)) )
+  theme(plot.margin = margin(c(10, 10, 10, 20)) )
 plot(p3)
 
+# add the tidytuesday hashtag
+p4 <- 
+  p3 +
+  geom_textbox(
+    mapping = aes(
+      x = 2095,
+      y = -42,
+      label = "#TidyTuesday"
+    ),
+    inherit.aes = FALSE,
+    size = 3.5,
+    width = unit(200, "pt"),
+    family = "Ubuntu",
+    fill = NA,
+    box.colour = NA,
+    colour = "grey40",
+    hjust = 0.3, 
+    vjust = 1.5) +
+  theme(plot.margin = margin(c(10, 10, -5, 20)))
+plot(p4)
 
-
-
-
-
-
-
+# export the figure
+ggsave(filename = "05-tidy-tuesday/2020-01-30/figures-tables/fig1.pdf", p4,
+       width = 10, height = 6, device = cairo_pdf)
