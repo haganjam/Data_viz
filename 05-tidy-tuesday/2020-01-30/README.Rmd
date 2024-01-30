@@ -1,0 +1,12 @@
+
+---
+output: rmarkdown::github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# TidyTuesday: 2024-01-30 (week 5)
+
+![](figures-tables/fig1.pdf)
