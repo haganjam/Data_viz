@@ -14,30 +14,22 @@
 <br>
 <div align="left">
 A collection of data visualisation projects that I have enjoyed doing recently. These include contributions to the [#TidyTuesday challenge](https://github.com/rfordatascience/tidytuesday) along with other data visualisation that I was interested in. All visualisations using 100% R-code, mostly using `{ggplot2}`, `{tidyr}` and `{dplyr}` but also other amazing packages in the R and tidyverse ecosystem.
-
+<br>
 <br>
 
 <div align="left">
 
 ### TidyTuesday: Week 5 (2020-01-30)
 
-<br>
-
 ![](05-tidy-tuesday/2020-01-30/figures-tables/fig1.png)
 
-<br>
-
 ### Combined Heating and Power (CHP) fuel in the EU
-
-<br>
 
 ![](02-EU-CHP/figures-tables/fig1.png)
 
 <br>
 
 ### Exploring the Central Limit Theorem
-
-<br>
 
 This is a ShinyApp used to explore the Central Limit Theorem. I recently wrapped some R-code that I used as a teaching tool during some of the biostatistics courses that I taught into a ShinyApp.
 
