@@ -12,7 +12,7 @@
 [![Github Pages](https://img.shields.io/badge/github%20pages-121013?style=for-the-badge&logo=github&logoColor=white)](https://haganjam.github.io)
 
 <br>
-<div align="left">
+</div>
 A collection of data visualisation projects that I have enjoyed doing recently. These include contributions to the [#TidyTuesday challenge](https://github.com/rfordatascience/tidytuesday) along with other data visualisation that I was interested in. All visualisations using 100% R-code, mostly using `{ggplot2}`, `{tidyr}` and `{dplyr}` but also other amazing packages in the R and tidyverse ecosystem.
 <br>
 <br>
