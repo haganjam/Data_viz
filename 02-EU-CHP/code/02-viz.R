@@ -394,6 +394,6 @@ ggsave(filename = "02-EU-CHP/figures-tables/fig1.pdf", h,
 
 pdftools::pdf_convert(pdf = "02-EU-CHP/figures-tables/fig1.pdf",
                       filenames = "02-EU-CHP/figures-tables/fig1.png",
-                      format = "png", dpi = 600)
+                      format = "png", dpi = 300)
 
 ### END
