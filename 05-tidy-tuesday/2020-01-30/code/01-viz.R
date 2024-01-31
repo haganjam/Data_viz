@@ -72,6 +72,9 @@ range(pred_long$year)
 # check number of ground hogs
 pred_sum
 
+# save as a .rds file
+saveRDS(pred_long, "06-banner-image/time-series.rds")
+
 # set-up the legend
 leg <- 
   dplyr::tibble(year = c(1887),
