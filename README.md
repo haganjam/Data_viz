@@ -19,17 +19,17 @@ A collection of data visualisation projects that I have enjoyed doing recently. 
 
 <div align="left">
 
-### TidyTuesday: Week 5 (2020-01-30)
+### 1. TidyTuesday: Week 5 (2020-01-30)
 
 ![](05-tidy-tuesday/2020-01-30/figures-tables/fig1.png)
-
-### Combined Heating and Power (CHP) fuel in the EU
-
-![](02-EU-CHP/figures-tables/fig1.png)
-
 <br>
 
-### Exploring the Central Limit Theorem
+### 2. Combined Heating and Power (CHP) fuel in the EU
+
+![](02-EU-CHP/figures-tables/fig1.png)
+<br>
+
+### 3. Exploring the Central Limit Theorem
 
 This is a ShinyApp used to explore the Central Limit Theorem. I recently wrapped some R-code that I used as a teaching tool during some of the biostatistics courses that I taught into a ShinyApp.
 
