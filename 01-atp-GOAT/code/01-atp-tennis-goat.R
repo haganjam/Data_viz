@@ -13,6 +13,9 @@ library(readr)
 library(lubridate)
 library(gam)
 
+# load the relevant plotting theme
+source("01-atp-GOAT/code/helper-plotting-theme.R")
+
 # load player id data
 atp_players <- readr::read_csv(url("https://github.com/JeffSackmann/tennis_atp/raw/master/atp_players.csv"))
 head(atp_players)
@@ -23,7 +26,7 @@ head(atp_rank)
 dim(atp_rank)
 
 # load the grand-slam winners dataset
-gs_dat <- readr::read_csv("data/atp_tennis_data/atp_grand_slam_winners.csv")
+gs_dat <- readr::read_csv("01-atp-GOAT/data/atp_grand_slam_winners.csv")
 head(gs_dat)
 
 # federer first atp match: https://en.wikipedia.org/wiki/Roger_Federer#:~:text=1998–2002%3A%20Early%20professional%20career,-Main%20article%3A%20Roger&text=Federer%20made%20his%20ATP%20debut,in%20Toulouse%20against%20Guillaume%20Raoux.
