@@ -3,7 +3,7 @@
 </h1>
 
 <div align="center">
-___
+
 <br>
 
 &nbsp;&nbsp;&nbsp;
@@ -14,14 +14,11 @@ ___
 <br>
 <div align="left">
 A collection of data visualisation projects that I have enjoyed doing recently. These include contributions to the [#TidyTuesday challenge](https://github.com/rfordatascience/tidytuesday) along with other data visualisation that I was interested in. All visualisations using 100% R-code, mostly using `{ggplot2}`, `{tidyr}` and `{dplyr}` but also other amazing packages in the R and tidyverse ecosystem.
-<br>
-
-<div align="center">
-___
 
 <br>
 
 <div align="left">
+
 ### TidyTuesday: Week 5 (2020-01-30)
 
 <br>
