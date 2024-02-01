@@ -54,7 +54,7 @@ for(i in 1:length(links)) {
 atp_rank_list[[sample(x = 1:length(links), 1)]]
 
 # bind into a big dataset
-¨ <- dplyr::bind_rows(atp_rank_list)
+atp_rank <- dplyr::bind_rows(atp_rank_list)
 
 # get the players with a ranking post 1985
 play_id <- 
@@ -120,7 +120,7 @@ ggplot() +
 gs_n <- length(gs_id)
 
 # how many samples?
-N <- 200
+N <- 100
 
 # make a list to receive the output
 ran_list <- vector("list", length = N)
@@ -143,6 +143,29 @@ ggplot() +
                fill = "darkblue", colour = NA) +
   geom_density(data = gs_h |> dplyr::filter(gs_winner == TRUE),
                mapping = aes(x = height), adjust = 2, alpha = 0.5, fill = "gold", colour = NA)
+
+# summarise the random data.frame
+ran_df_sum <- 
+  ran_df |>
+  dplyr::group_by(sample) |>
+  dplyr::summarise(h_m = mean(height),
+                   h_sd = sd(height))
+
+# summarise the grandslam data
+gs_sum <- 
+  gs_h |> 
+  dplyr::filter(gs_winner == TRUE) |>
+  dplyr::summarise(h_m = mean(height),
+                   h_sd = sd(height))
+
+ggplot(data = ran_df_sum,
+       mapping = aes(x = sample)) +
+  geom_errorbar(mapping = aes(ymin = h_m - h_sd, ymax = h_m + h_sd),
+                width = 0, alpha = 0.3) +
+  geom_errorbar(data = gs_sum,
+                mapping = aes(x = 50, ymin = h_m - h_sd, ymax = h_m + h_sd),
+                colour = "red") +
+  coord_flip()
 
 
 

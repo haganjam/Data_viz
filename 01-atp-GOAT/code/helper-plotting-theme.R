@@ -2,6 +2,7 @@
 # plotting theme from:
 
 # get the fonts we need
+library(showtext)
 
 # load some new fonts
 font_add('fa-reg', 'fonts/Font Awesome 6 Free-Regular-400.otf')
