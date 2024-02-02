@@ -9,6 +9,9 @@ library(ggplot2)
 # next step is to use leaflet for Shiny
 # https://rstudio.github.io/leaflet/shiny.html
 
+# and to look at the flexdashboard themes
+# https://rstudio.github.io/flexdashboard/articles/theme.html
+
 # load the data
 dat <- readr::read_csv("04-living-planet/data/LPD2022_public.csv")
 head(dat)
