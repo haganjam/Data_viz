@@ -10,14 +10,14 @@ font_add('fa-solid', 'fonts/Font Awesome 6 Free-Solid-900.otf')
 
 # add a gont from google fonts
 font_add_google("Bebas Neue", "Bebas Neue")
-font_add_google("Libre Caslon Text", "Caslon")
+font_add_google("Dosis", "Dosis")
 font_add_google("Ubuntu", "Ubuntu")
 
 # activate showtext
 showtext_auto()
 
 ## ggplot theme
-theme_set(theme_minimal(base_family = "Ubuntu", base_size = 12))
+theme_set(theme_minimal(base_family = "Dosis", base_size = 12))
 
 theme_update(
   plot.title = element_text(size = 18,
@@ -41,7 +41,7 @@ theme_update(
                                    fill = "grey95"),
   legend.key.height = unit(.25, "lines"),
   legend.key.width = unit(2.5, "lines"),
-  plot.margin = margin(c(20, 20, 20, 20)),
+  plot.margin = margin(c(20, 20, -5, 20)),
   axis.line.y = element_line(color="grey40", size = 0.4),
   axis.ticks.y = element_line(colour = "grey40", size = 0.4)
 )
