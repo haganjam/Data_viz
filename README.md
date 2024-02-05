@@ -23,7 +23,7 @@ A collection of data visualisation projects that I have enjoyed doing recently. 
 
 ### 1. TidyTuesday: Week 5 (2020-01-30)
 
-![](05-tidy-tuesday/2020-01-30/figures-tables/fig1.png)
+![](05-tidy-tuesday/2024-01-30/figures-tables/fig1.png)
 <br>
 
 ### 2. Combined Heating and Power (CHP) fuel in the EU
