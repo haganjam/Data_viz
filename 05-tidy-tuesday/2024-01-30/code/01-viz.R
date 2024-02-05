@@ -8,7 +8,7 @@ library(ggtext)
 library(showtext)
 
 # load the plotting theme
-source("05-tidy-tuesday/2020-01-30/code/helper-plotting-theme.R")
+source("05-tidy-tuesday/2024-01-30/code/helper-plotting-theme.R")
 
 # load the data directly from Github
 groundhogs <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2024/2024-01-30/groundhogs.csv')
@@ -254,11 +254,11 @@ p4 <-
 plot(p4)
 
 # export the figure
-ggsave(filename = "05-tidy-tuesday/2020-01-30/figures-tables/fig1.pdf", p4,
+ggsave(filename = "05-tidy-tuesday/2024-01-30/figures-tables/fig1.pdf", p4,
        width = 10, height = 6, device = cairo_pdf)
 
-pdftools::pdf_convert(pdf = "05-tidy-tuesday/2020-01-30/figures-tables/fig1.pdf",
-                      filenames = "05-tidy-tuesday/2020-01-30/figures-tables/fig1.png",
+pdftools::pdf_convert(pdf = "05-tidy-tuesday/2024-01-30/figures-tables/fig1.pdf",
+                      filenames = "05-tidy-tuesday/2024-01-30/figures-tables/fig1.png",
                       format = "png", dpi = 400)
 
 
