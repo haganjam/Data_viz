@@ -69,12 +69,18 @@ ts_pub <-
   dplyr::filter(Year >= year_start, Year <= year_end) |>
   dplyr::select(model_id, author, year_start, year_end, year = Year, temp_anom_C)
 
+# convert the year variable into a data variable
+ts_pub <- 
+  ts_pub |>
+  dplyr::mutate(date = lubridate::make_datetime(year = year, month = 6)) |>
+  dplyr::select(model_id, author, year_start, year_end, year, date, temp_anom_C)
+
 # check the summary of the dataset
 summary(ts_pub)
 
 # test plot
 ggplot(data = ts_pub,
-       mapping = aes(x = year, y = temp_anom_C, colour = model_id)) +
+       mapping = aes(x = date, y = temp_anom_C, colour = model_id)) +
   geom_line()
 
 saveRDS(object = ts_pub, file = "07-climate-models/data/ts_pub.rds")
@@ -95,8 +101,7 @@ ts_obs <-
   ts_obs |>
   tidyr::pivot_longer(cols = c("hadcrut4", "gistemp", "noaa", "berkeley", "cowtan_way"),
                       names_to = "source",
-                      values_to = "temp_anom_C") |>
-  dplyr::filter(year >= 1970, year <= 2017)
+                      values_to = "temp_anom_C")
 
 saveRDS(object = ts_obs, file = "07-climate-models/data/ts_obs.rds")
 
@@ -120,7 +125,4 @@ ggplot(data = ts_obs,
        mapping = aes(x = date, y = temp_anom_C, colour = source)) +
   geom_line(alpha = 0.2) 
 
-
-
-
-
+### END
