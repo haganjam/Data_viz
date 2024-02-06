@@ -46,5 +46,7 @@ This is a ShinyApp used to explore the Central Limit Theorem. I recently wrapped
 
 <br>
 
+![](03-central-limit-theorem/preview_gif.gif)
+
 
 
