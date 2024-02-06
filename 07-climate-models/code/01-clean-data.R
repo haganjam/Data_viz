@@ -72,7 +72,7 @@ ts_pub <-
 # convert the year variable into a data variable
 ts_pub <- 
   ts_pub |>
-  dplyr::mutate(date = lubridate::make_datetime(year = year, month = 6)) |>
+  dplyr::mutate(date = lubridate::make_date(year = year, month = 6)) |>
   dplyr::select(model_id, author, year_start, year_end, year, date, temp_anom_C)
 
 # check the summary of the dataset
@@ -93,7 +93,7 @@ head(ts_obs)
 # remove the copernicus column because it doesn't have good temporal resolution
 ts_obs <- 
   ts_obs |>
-  dplyr::mutate(date = lubridate::make_datetime(year = year, month = month)) |>
+  dplyr::mutate(date = lubridate::make_date(year = year, month = month)) |>
   dplyr::select(-copernicus)
 
 # convert to the long format
@@ -102,6 +102,9 @@ ts_obs <-
   tidyr::pivot_longer(cols = c("hadcrut4", "gistemp", "noaa", "berkeley", "cowtan_way"),
                       names_to = "source",
                       values_to = "temp_anom_C")
+
+# remove the NA values
+ts_obs <- ts_obs[complete.cases(ts_obs),]
 
 saveRDS(object = ts_obs, file = "07-climate-models/data/ts_obs.rds")
 
@@ -121,8 +124,11 @@ ggplot(data = ts_obs_sum,
                             ymax = temp_anom_C_max),
               alpha = 0.25)
 
+summary(ts_obs)
+
 ggplot(data = ts_obs,
        mapping = aes(x = date, y = temp_anom_C, colour = source)) +
-  geom_line(alpha = 0.2) 
+  geom_line(alpha = 0.2) +
+  theme(legend.position = "none")
 
 ### END

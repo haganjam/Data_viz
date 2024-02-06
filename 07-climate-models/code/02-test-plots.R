@@ -27,14 +27,19 @@ obs_in <-
   ts_obs |>
   dplyr::filter(date >= min(pub_in$date), date < max(pub_in$date))
 
-ggplot() +
+p1 <- 
+  ggplot() +
   geom_line(data = pub_in,
             mapping = aes(x = date, y = temp_anom_C)) +
   geom_line(data = obs_in,
              mapping = aes(x = date, y = temp_anom_C, group = source),
-            alpha = 0.5, linewidth = 0.1) +
-  transition_reveal(date)
+            alpha = 0.5, linewidth = 0.1)
+p1
 
+# fit this to a gganimate
+p1 +
+  transition_reveal(date)
+plot(p1)
 
 
 
