@@ -2,20 +2,24 @@
 # load relevant libraries
 library(shiny)
 library(shinyjs)
+library(shinyWidgets)
 library(scrollytell)
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
 
-    # Application title
+    # application title
     titlePanel("Climate models: How accurate are they?"),
+    
+    # set the background colours
+    setBackgroundColor("#f0e9df"),
     
     # scrollytelling plot
     scrolly_container(outputId = "scr",
                       
                       scrolly_graph(
                         
-                        img(src = "plot01.gif", height = '250px', width = '500px')
+                        img(src = "plot01.gif", height = '300px', width = '600px')
                         
                       ),
                       

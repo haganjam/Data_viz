@@ -62,7 +62,7 @@ mod_id <- mod_id[c(2, 1, 3:length(mod_id))]
 # create this kind of gif for all 10 models
 mod_gif <- vector("list", length = length(mod_id))
 for(j in 1:length(mod_gif)) {
-  
+  j = 1
   # add a box to this
   p_a1 <- 
     base_obs_plot +
@@ -76,7 +76,7 @@ for(j in 1:length(mod_gif)) {
       data = dplyr::filter(ts_box, model_id == mod_id[j]),
       mapping = aes(x = date_start, y = 1.55, label = "Publication"),
       inherit.aes = FALSE,
-      size = 4, 
+      size = 3.5, 
       colour = '#C71C7E',
       family = "Dosis",
       vjust = -0.05
@@ -85,7 +85,7 @@ for(j in 1:length(mod_gif)) {
       data = dplyr::filter(ts_box, model_id == mod_id[j]),
       mapping = aes(x = date_start, y = 1.3, label = "Prediction window"),
       inherit.aes = FALSE,
-      size = 3.5, 
+      size = 3, 
       alpha = 0.3,
       colour = 'grey45',
       family = "Bebas Neue",
@@ -93,7 +93,7 @@ for(j in 1:length(mod_gif)) {
       valign = 0.5,
       halign = 0.5,
       vjust = 1,
-      hjust = 0.15,
+      hjust = 0.21,
       box.colour = NA,
       fill = NA
     ) +
@@ -104,18 +104,14 @@ for(j in 1:length(mod_gif)) {
       alpha = 0.1, 
       fill = '#C71C7E'
     ) +
-    ggtitle(
-      label = with(ts_pub[ts_pub$model_id == mod_id[j],], paste0(author[1], " ", year[1]))) +
     transition_layers(layer_length = 0.1, transition_length = 0.1, from_blank = FALSE) +
     theme(axis.title.y = element_text(vjust = 0.5,
                                       margin = margin(c(10, 30, 10, 10))),
-          plot.margin = margin(c(20, 10, 20, 20)),
-          plot.title = element_text(size = 14, hjust = 0, colour = "grey60",
-                                    margin = margin(c(10, 10, 30, 10))))
+          plot.margin = margin(c(35, 10, 20, 20)))
   # plot(p_a1)
   
   # write into a gif
-  p_a1_gif <- animate(p_a1, width = 320, height = 320, renderer = gifski_renderer())
+  p_a1_gif <- animate(p_a1, width = 9, height = 7, renderer = gifski_renderer(), units = "cm", res = 150)
   p_a1_gifm <- image_read(p_a1_gif)
   
   # make an animate plot
@@ -157,21 +153,18 @@ for(j in 1:length(mod_gif)) {
     scale_y_continuous(expand = c(0, 0), limits = c(min_y-0.01, max_y+0.01)) +
     coord_cartesian(clip = "off") +
     transition_reveal(date) +
-    ggtitle("") +
     theme(axis.title.y = element_text(vjust = 0.5,
                                       margin = margin(c(10, 30, 10, 10))),
-          plot.margin = margin(c(20, 10, 20, 20)),
-          plot.title = element_text(size = 14, hjust = 0,
-                                    margin = margin(c(10, 10, 30, 10))))
+          plot.margin = margin(c(35, 10, 20, 20)))
   # plot(p_a2)
   
   # write into a gif
-  p_a2_gif <- animate(p_a2, width = 320, height = 320, renderer = gifski_renderer())
+  p_a2_gif <- animate(p_a2, width = 9, height = 7, renderer = gifski_renderer(), units = "cm", res = 150)
   p_a2_gifm <- image_read(p_a2_gif)
   
-  new_gif <- image_montage(c(p_a1_gifm[length(p_a1_gifm)], p_a2_gifm[1]), tile = "2x1", geometry = "240x240")
+  new_gif <- image_montage(c(p_a1_gifm[length(p_a1_gifm)], p_a2_gifm[1]), tile = "2x1", geometry = "500x500", bg = "#f0e9df")
   for(i in 2:length(p_a2_gifm)) {
-    combined <- image_montage(c(p_a1_gifm[length(p_a1_gifm)], p_a2_gifm[i]), tile = "2x1", geometry = "240x240")
+    combined <- image_montage(c(p_a1_gifm[length(p_a1_gifm)], p_a2_gifm[i]), tile = "2x1", geometry = "500x500", bg = "#f0e9df")
     new_gif <- c(new_gif, combined)
   }
   
@@ -181,14 +174,14 @@ for(j in 1:length(mod_gif)) {
 }
 
 # check the gifs
-mod_gif[[2]]
+# mod_gif[[2]]
 
 # save the gifs
 file_names <- as.character(c(paste0("0", 1:9), 10))
 for(i in 1:length(mod_gif)) {
-  
+  i = 1
   magick::image_write_gif(
-    mod_gif[[1]], paste0("07-climate-models/www/plot", file_names[i], ".gif")
+    mod_gif[[i]], paste0("07-climate-models/www/plot", file_names[i], ".gif")
     )
   
 }
