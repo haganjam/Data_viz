@@ -7,6 +7,7 @@ library(shinyjs)
 library(scrollytell)
 library(ggplot2)
 library(gganimate)
+library(ggtext)
 
 # make relevant plots for the app
 
@@ -43,8 +44,8 @@ base_obs_plot <-
   ylab("Temperature anomaly (\u00B0C)") +
   xlab(NULL) +
   scale_x_date() +
-  scale_y_continuous(limits = c(-1, 1.4), expand = c(0, 0)) +
-  coord_cartesian(clip = "off") +
+  scale_y_continuous(expand = c(0, 0)) +
+  coord_cartesian(ylim = c(-1, 1.4), clip = "off") +
   theme(plot.margin = margin(c(40, 10, 10, 10)))
 plot(base_obs_plot)
 
@@ -61,32 +62,61 @@ mod_id <- mod_id[c(2, 1, 3:length(mod_id))]
 # create this kind of gif for all 10 models
 mod_gif <- vector("list", length = length(mod_id))
 for(j in 1:length(mod_gif)) {
-  j <- 1
+  
   # add a box to this
   p_a1 <- 
     base_obs_plot +
+    geom_segment(
+      data = dplyr::filter(ts_box, model_id == mod_id[j]),
+      mapping = aes(x = date_start, xend = date_start, y = -1, yend = 1.55),
+      linetype = "dotted", colour = '#C71C7E',
+      inherit.aes = FALSE
+      ) +
+    geom_text(
+      data = dplyr::filter(ts_box, model_id == mod_id[j]),
+      mapping = aes(x = date_start, y = 1.55, label = "Publication"),
+      inherit.aes = FALSE,
+      size = 4, 
+      colour = '#C71C7E',
+      family = "Dosis",
+      vjust = -0.05
+    ) +
+    ggtext::geom_textbox(
+      data = dplyr::filter(ts_box, model_id == mod_id[j]),
+      mapping = aes(x = date_start, y = 1.3, label = "Prediction window"),
+      inherit.aes = FALSE,
+      size = 3.5, 
+      alpha = 0.3,
+      colour = 'grey45',
+      family = "Bebas Neue",
+      width = unit(60, "pt"),
+      valign = 0.5,
+      halign = 0.5,
+      vjust = 1,
+      hjust = 0.15,
+      box.colour = NA,
+      fill = NA
+    ) +
     geom_rect(
       data = dplyr::filter(ts_box, model_id == mod_id[j]),
       mapping = aes(xmin = date_start, xmax = date_end, ymin = -1, ymax = 1.4),
       inherit.aes = FALSE,
-      alpha = 0.1, fill = '#C71C7E') +
-    geom_text(
-      data = dplyr::filter(ts_box, model_id == mod_id[j]),
-      mapping = aes(x = date_mid, y = 1.4, label = label),
-      inherit.aes = FALSE,
-      family = "Dosis",
-      size = 4,
-      vjust = -0.5) +
+      alpha = 0.1, 
+      fill = '#C71C7E'
+    ) +
+    ggtitle(
+      label = with(ts_pub[ts_pub$model_id == mod_id[j],], paste0(author[1], " ", year[1]))) +
     transition_layers(layer_length = 0.1, transition_length = 0.1, from_blank = FALSE) +
     theme(axis.title.y = element_text(vjust = 0.5,
                                       margin = margin(c(10, 30, 10, 10))),
-          plot.margin = margin(c(40, 10, 20, 20)))
-  plot(p_a1)
+          plot.margin = margin(c(20, 10, 20, 20)),
+          plot.title = element_text(size = 14, hjust = 0, colour = "grey60",
+                                    margin = margin(c(10, 10, 30, 10))))
+  # plot(p_a1)
   
   # write into a gif
-  p_a1_gif <- animate(p_a1, width = 240, height = 240, renderer = gifski_renderer())
+  p_a1_gif <- animate(p_a1, width = 320, height = 320, renderer = gifski_renderer())
   p_a1_gifm <- image_read(p_a1_gif)
-  length(p_a1_gifm)
   
   # make an animate plot
   pub_in <- 
@@ -97,8 +127,25 @@ for(j in 1:length(mod_gif)) {
     ts_obs |>
     dplyr::filter(date >= min(pub_in$date), date < max(pub_in$date))
   
+  # get the min and max values
+  min_y <- min( c(pub_in$temp_anom_C, obs_in$temp_anom_C) )
+  max_y <- max( c(pub_in$temp_anom_C, obs_in$temp_anom_C) )
+  
   p_a2 <- 
     ggplot() +
+    geom_segment(
+      data = dplyr::filter(ts_box, model_id == mod_id[j]),
+      mapping = aes(x = date_start, xend = date_start, y = min_y-0.01, yend = max_y+0.01),
+      linetype = "dotted", colour = '#C71C7E',
+      inherit.aes = FALSE
+    ) +
+    geom_rect(
+      data = dplyr::filter(ts_box, model_id == mod_id[j]),
+      mapping = aes(xmin = date_start, xmax = date_end, ymin = min_y-0.01, ymax = max_y+0.01),
+      inherit.aes = FALSE,
+      alpha = 0.1, 
+      fill = '#C71C7E'
+    ) +
     geom_line(data = pub_in,
               mapping = aes(x = date, y = temp_anom_C)) +
     geom_line(data = obs_in,
@@ -107,18 +154,20 @@ for(j in 1:length(mod_gif)) {
     ylab("Temperature anomaly (\u00B0C)") +
     xlab(NULL) +
     scale_x_date() +
-    scale_y_continuous(expand = c(0, 0)) +
+    scale_y_continuous(expand = c(0, 0), limits = c(min_y-0.01, max_y+0.01)) +
     coord_cartesian(clip = "off") +
     transition_reveal(date) +
+    ggtitle("") +
     theme(axis.title.y = element_text(vjust = 0.5,
                                       margin = margin(c(10, 30, 10, 10))),
-          plot.margin = margin(c(40, 10, 20, 20)))
-  plot(p_a2)
+          plot.margin = margin(c(20, 10, 20, 20)),
+          plot.title = element_text(size = 14, hjust = 0,
+                                    margin = margin(c(10, 10, 30, 10))))
+  # plot(p_a2)
   
   # write into a gif
-  p_a2_gif <- animate(p_a2, width = 240, height = 240, renderer = gifski_renderer())
+  p_a2_gif <- animate(p_a2, width = 320, height = 320, renderer = gifski_renderer())
   p_a2_gifm <- image_read(p_a2_gif)
-  length(p_a2_gifm)
   
   new_gif <- image_montage(c(p_a1_gifm[length(p_a1_gifm)], p_a2_gifm[1]), tile = "2x1", geometry = "240x240")
   for(i in 2:length(p_a2_gifm)) {
@@ -143,8 +192,4 @@ for(i in 1:length(mod_gif)) {
     )
   
 }
-
-
-
-
 

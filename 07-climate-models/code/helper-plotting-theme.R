@@ -10,9 +10,9 @@ font_add('fa-brands', 'fonts/Font Awesome 6 Brands-Regular-400.otf')
 font_add('fa-solid', 'fonts/Font Awesome 6 Free-Solid-900.otf')
 
 # add a gont from google fonts
-# font_add_google("Bebas Neue", "Bebas Neue")
-# font_add_google("Dosis", "Dosis")
-# font_add_google("Ubuntu", "Ubuntu")
+font_add_google("Bebas Neue", "Bebas Neue")
+font_add_google("Dosis", "Dosis")
+font_add_google("Ubuntu", "Ubuntu")
 
 # activate showtext
 showtext_auto()
