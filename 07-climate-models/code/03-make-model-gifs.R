@@ -64,7 +64,7 @@ mod_id <- mod_id[c(2, 1, 3:length(mod_id))]
 # create this kind of gif for all 10 models
 mod_gif <- vector("list", length = length(mod_id))
 for(j in 1:length(mod_gif)) {
-  j = 1
+  
   # add a box to this
   p_a1 <- 
     base_obs_plot +
