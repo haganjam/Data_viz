@@ -81,7 +81,7 @@ ui <- fluidPage(
                         scrolly_section(id = 7, render_text(7)),
                         scrolly_section(id = 8, render_text(8)),
                         scrolly_section(id = 9, render_text(9)),
-                        # scrolly_section(id = 10, render_text(10)),
+                        scrolly_section(id = 10, render_text(10)),
                         scrolly_section(id = "buffer", br()),
                         )
                       )
@@ -96,7 +96,7 @@ server <- function(input, output) {
   
   output$gif_n <- renderImage({
     
-    list(src = paste0("www/plot0", input$scr, ".gif"),
+    list(src = paste0("www/plot_", input$scr, ".gif"),
          contentType = 'video/gif',
          width = "600px",
          height = "300px",
