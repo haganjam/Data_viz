@@ -9,7 +9,7 @@ library(gganimate)
 library(ggtext)
 
 # load the plotting theme
-source("07-climate-models/code/helper-plotting-theme.R")
+source("07-climate-models/helper-plotting-theme.R")
 
 # make relevant plots for the app
 
@@ -64,7 +64,7 @@ mod_id <- mod_id[c(2, 1, 3:length(mod_id))]
 # create this kind of gif for all 10 models
 mod_gif <- vector("list", length = length(mod_id))
 for(j in 1:length(mod_gif)) {
-  
+  j = 1
   # add a box to this
   p_a1 <- 
     base_obs_plot +
@@ -192,7 +192,7 @@ for(j in 1:length(mod_gif)) {
 mod_gif[[2]]
 
 # save the gifs
-file_names <- as.character(c(paste0("0", 1:9), 10))
+file_names <- as.character(c(paste0("_", 1:10)))
 for(i in 1:length(mod_gif)) {
   
   magick::image_write_gif(

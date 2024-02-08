@@ -30,12 +30,11 @@ ui <- fluidPage(
              column(
                10, 
                # intro text
-               fluidRow(id = 'text',
-                        column(1),
+               fluidRow(column(1),
                         column(
                           10, 
                           br(),
-                          text0,
+                          text0a,
                           br()
                         ),
                         column(1))
@@ -55,20 +54,24 @@ ui <- fluidPage(
                     plotOutput("intro_plot")),
              column(1)),
     
+    fluidRow(column(1),
+             column(10, 
+                    fluidRow(column(1),
+                             column(10,
+                                    br(),
+                                    text0b),
+                             column(1)),
+             column(1))),
+    
+    br(),
+    br(),
+    
     # scrollytelling plot
     scrolly_container(outputId = "scr",
                       
-                      scrolly_graph(
-                        
-                        img(src = "plot01.gif", height = '300px', width = '600px')
-                        
-                      ),
+                      scrolly_graph( imageOutput("gif_n") ),
                       
                       scrolly_sections(
-                        ## each of these sections corresponds to an update
-                        ## the number after id = corresponds to the `scr` update
-                        ## the render_text() function will be discussed later
-                        scrolly_section(id = 0, render_text(0)),
                         scrolly_section(id = 1, render_text(1)),
                         scrolly_section(id = 2, render_text(2)),
                         scrolly_section(id = 3, render_text(3)),
@@ -78,13 +81,10 @@ ui <- fluidPage(
                         scrolly_section(id = 7, render_text(7)),
                         scrolly_section(id = 8, render_text(8)),
                         scrolly_section(id = 9, render_text(9)),
-                        scrolly_section(id = 10, render_text(10)),
-                        # add a scrolly_section with nothing in it;
-                        # this buffer prevents the plot from disappearing while reading last section
-                        scrolly_section(id = "buffer", br())
+                        # scrolly_section(id = 10, render_text(10)),
+                        scrolly_section(id = "buffer", br()),
+                        )
                       )
-                      
-    )
 )
 
 # Define server logic required to draw a histogram
@@ -93,6 +93,20 @@ server <- function(input, output) {
   output$intro_plot <- renderPlot({
     intro_plot
   }, width = 600, height = 400, res = 100)
+  
+  output$gif_n <- renderImage({
+    
+    list(src = paste0("www/plot0", input$scr, ".gif"),
+         contentType = 'video/gif',
+         width = "600px",
+         height = "300px",
+         alt = paste0("image", input$scr))
+    
+  }, deleteFile = FALSE)
+  
+  output$scr <- renderScrollytell({
+    scrollytell()
+  })
 
 }
 

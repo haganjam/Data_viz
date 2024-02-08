@@ -17,14 +17,6 @@ longdiv <- function(...){
   )
 }
 
-render_text <- function(num){
-  
-  div(
-    text(num), class = "text"
-  )
-  
-}
-
 text <- function(num){
   p(
     switch(num,
@@ -35,13 +27,23 @@ text <- function(num){
            text5,
            text6,
            text7,
-           text8
+           text8,
+           text9,
+           text10
     )
   )
 }
 
+render_text <- function(num){
+  
+  div(
+    text(num), class = "text"
+  )
+  
+}
+
 # write relevant texts for the app
-text0 <- HTML("<span style='font-size:20px'> How well have past climate models predicted future changes in global temperature? </span>
+text0a <- HTML("<span style='font-size:20px'> How well have past climate models predicted future changes in global temperature? </span>
               <br><br> 
               <p>A claim I often hear repeated in the conservative media space (don't ask we why I sometimes frequent conservative media on YouTube, we all have our guilty pleasures)
               is that the climate models have consistently *overestimated* the amount of warming that has occurred in the 20th and 21st centuries. For example,
@@ -50,15 +52,16 @@ text0 <- HTML("<span style='font-size:20px'> How well have past climate models p
               and compare how well their future predictions matched the actual warming that occurred. Fortunately, an excellent paper from Hausfather et al. (2019, Geophysical Research Letters)
               did most of this work for me by collating predictions from climate models that had been made at different times since the first major climate model was published in 1970 and collating
               several observational datasets of global temperature. All I have done here is visualise their data in a more intuitive way to try and give people a sense for how good even old models are.<p>
-              <p>Before we get into this, I want to stress an important point. The future predictions of climate models can be wrong for at least two reasons. First, they model the physics of the
-              climate system incorrectly which means that the predictions are wrong. Second, the future scenarios of climate forcing (e.g. CO2 emissions) are wrong which means that the future predictions
-              are wrong. This second reason has nothing to do with how good the models are at simulating the earth's climate but rather are based on the vagaries of human population growth, economic cycles
-              etc. which are, arguably, more difficult to predict. So, for the purposes of this visualisation, I only show predictions from scenarios that used climate forcing scenarios that are at least vaguely
-              in line with what actually happened as this is a better test of whether the models can accurately simulate the climate.<p>
-              <p>To start with, let's look at the level of warming that occurred between 1880 and 2019 based on five different data products namely: National Aeronautics and Space Administration *GISTEMP* (Lenssen et al., 2019), 
-              National Oceanic and Atmospheric Administration *GlobalTemp* (Vose et al., 2012), Hadley/UEA *HadCRUT4* (Morice et al., 2012), *Berkeley Earth* (Rohde et al., 2013), and *Cowtan and Way* (Cowtan & Way, 2014).
+              <p>To start with, let's look at the level of warming that occurred between 1880 and 2019 based on five different data products namely: National Aeronautics and Space Administration GISTEMP (Lenssen et al., 2019), 
+              National Oceanic and Atmospheric Administration, GlobalTemp (Vose et al., 2012), Hadley/UEA, HadCRUT4 (Morice et al., 2012), Berkeley Earth (Rohde et al., 2013), and Cowtan and Way (Cowtan & Way, 2014).
               What is abundantly clear from all these different data products is that there has been a notable increase in the global temperature since 1880.<p>"
               )
+
+text0b <- HTML("<p>So, how well have the different climate models over the years predicted this increase. The idea behind this visualisation is that you can scroll through
+               the predictions that the different models have made and compare these predictions to the observation record. Each model was published in some year (e.g. 1970) and
+               made predictions about how the global temperature should change. At the time the predictions were made, the models of course had no idea how the global temperature 
+               would change. Yet, in many cases, these models made very good future predictions of the temperature. See for yourself.<p>"
+)
 
 text1 <- HTML("<H2> Manabe (1970) </H2>
               <br> <p> In 1970, Manable published one of the first climate models with projections of warming for the future. The model was a simple energy balance model with CO2 concentrations as the main driver of global temperatures.
@@ -111,6 +114,10 @@ concludingtext <- HTML("<p><span style='font-size:24px'><b>Are climate models ac
 technicalnotes <- HTML("<p>
                 <span style='font-size:18px'><i>Technical Notes</i></span><br>
                 <br>
+                <p>Note that the predictions of climate models can be wrong for at least two reasons. First, they model the physics of the
+                climate system incorrectly. Second, the future scenarios of climate forcing (e.g. CO2 emissions) are wrong. This second reason has nothing to do with how good the models are at simulating the earth's climate but rather are based on the vagaries of human population growth, economic cycles
+                etc. Here, I only showed predictions from models and scenarios that used climate forcing scenarios that are
+                in line with what actually happened.<p>
                 For more information on the technical details of this analysis, please refer to the original paper that compiled these predictions: Hausfather et al. (2021). 
                 <br>
                 <br>
