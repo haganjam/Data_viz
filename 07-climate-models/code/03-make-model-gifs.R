@@ -4,10 +4,12 @@
 # load relevant libraries
 library(shiny)
 library(shinyjs)
-library(scrollytell)
 library(ggplot2)
 library(gganimate)
 library(ggtext)
+
+# load the plotting theme
+source("07-climate-models/code/helper-plotting-theme.R")
 
 # make relevant plots for the app
 
@@ -62,7 +64,7 @@ mod_id <- mod_id[c(2, 1, 3:length(mod_id))]
 # create this kind of gif for all 10 models
 mod_gif <- vector("list", length = length(mod_id))
 for(j in 1:length(mod_gif)) {
-  j = 1
+  
   # add a box to this
   p_a1 <- 
     base_obs_plot +
@@ -112,7 +114,7 @@ for(j in 1:length(mod_gif)) {
   
   # write into a gif
   p_a1_gif <- animate(p_a1, width = 9, height = 7, renderer = gifski_renderer(), units = "cm", res = 150)
-  p_a1_gifm <- image_read(p_a1_gif)
+  p_a1_gifm <- magick::image_read(p_a1_gif)
   
   # make an animate plot
   pub_in <- 
@@ -142,6 +144,19 @@ for(j in 1:length(mod_gif)) {
       alpha = 0.1, 
       fill = '#C71C7E'
     ) +
+    geom_segment(
+      data = dplyr::filter(ts_box, model_id == mod_id[j]),
+      mapping = aes(x = lubridate::as_date(date_mid-1500), xend =  lubridate::as_date(date_mid-900),
+                    y = max_y + 0.08, yend = max_y + 0.08),
+      inherit.aes = FALSE
+    ) +
+    geom_text(
+      data = dplyr::filter(ts_box, model_id == mod_id[j]),
+      mapping = aes(x = lubridate::as_date(date_mid+300), y = max_y + 0.08,
+                    label = "Model"),
+      inherit.aes = FALSE,
+      family = "Dosis"
+    ) +
     geom_line(data = pub_in,
               mapping = aes(x = date, y = temp_anom_C)) +
     geom_line(data = obs_in,
@@ -150,8 +165,8 @@ for(j in 1:length(mod_gif)) {
     ylab("Temperature anomaly (\u00B0C)") +
     xlab(NULL) +
     scale_x_date() +
-    scale_y_continuous(expand = c(0, 0), limits = c(min_y-0.01, max_y+0.01)) +
-    coord_cartesian(clip = "off") +
+    scale_y_continuous(expand = c(0, 0)) +
+    coord_cartesian(ylim = c(min_y-0.01, max_y+0.085), clip = "off") +
     transition_reveal(date) +
     theme(axis.title.y = element_text(vjust = 0.5,
                                       margin = margin(c(10, 30, 10, 10))),
@@ -159,12 +174,12 @@ for(j in 1:length(mod_gif)) {
   # plot(p_a2)
   
   # write into a gif
-  p_a2_gif <- animate(p_a2, width = 9, height = 7, renderer = gifski_renderer(), units = "cm", res = 150)
-  p_a2_gifm <- image_read(p_a2_gif)
+  p_a2_gif <- gganimate::animate(p_a2, width = 9, height = 7, renderer = gifski_renderer(), units = "cm", res = 150)
+  p_a2_gifm <- magick::image_read(p_a2_gif)
   
-  new_gif <- image_montage(c(p_a1_gifm[length(p_a1_gifm)], p_a2_gifm[1]), tile = "2x1", geometry = "500x500", bg = "#f0e9df")
+  new_gif <- magick::image_montage(c(p_a1_gifm[length(p_a1_gifm)], p_a2_gifm[1]), tile = "2x1", geometry = "500x500", bg = "#f0e9df")
   for(i in 2:length(p_a2_gifm)) {
-    combined <- image_montage(c(p_a1_gifm[length(p_a1_gifm)], p_a2_gifm[i]), tile = "2x1", geometry = "500x500", bg = "#f0e9df")
+    combined <- magick::image_montage(c(p_a1_gifm[length(p_a1_gifm)], p_a2_gifm[i]), tile = "2x1", geometry = "500x500", bg = "#f0e9df")
     new_gif <- c(new_gif, combined)
   }
   
@@ -174,12 +189,12 @@ for(j in 1:length(mod_gif)) {
 }
 
 # check the gifs
-# mod_gif[[2]]
+mod_gif[[2]]
 
 # save the gifs
 file_names <- as.character(c(paste0("0", 1:9), 10))
 for(i in 1:length(mod_gif)) {
-  i = 1
+  
   magick::image_write_gif(
     mod_gif[[i]], paste0("07-climate-models/www/plot", file_names[i], ".gif")
     )
