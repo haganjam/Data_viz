@@ -109,12 +109,14 @@ for(j in 1:length(mod_gif)) {
     transition_layers(layer_length = 0.1, transition_length = 0.1, from_blank = FALSE) +
     theme(axis.title.y = element_text(vjust = 0.5,
                                       margin = margin(c(10, 30, 10, 10))),
-          plot.margin = margin(c(35, 10, 20, 20)))
+          plot.margin = margin(c(35, 10, 20, 20)),
+          plot.background = element_rect(fill = "#f0e9df", color = NA),
+          panel.background = element_rect(fill = "#f0e9df", color = NA))
   # plot(p_a1)
   
   # write into a gif
   p_a1_gif <- animate(p_a1, width = 9, height = 7, renderer = gifski_renderer(), units = "cm", res = 150)
-  p_a1_gifm <- magick::image_read(p_a1_gif, density = 200)
+  p_a1_gifm <- magick::image_read(p_a1_gif)
   
   # make an animate plot
   pub_in <- 
@@ -170,7 +172,9 @@ for(j in 1:length(mod_gif)) {
     transition_reveal(date) +
     theme(axis.title.y = element_text(vjust = 0.5,
                                       margin = margin(c(10, 30, 10, 10))),
-          plot.margin = margin(c(35, 10, 20, 20)))
+          plot.margin = margin(c(35, 10, 20, 20)),
+          plot.background = element_rect(fill = "#f0e9df", color = NA),
+          panel.background = element_rect(fill = "#f0e9df", color = NA))
   # plot(p_a2)
   
   # write into a gif
@@ -200,4 +204,26 @@ for(i in 1:length(mod_gif)) {
     )
   
 }
+
+# make a blank graph image
+g <- 
+  ggplot(data = dplyr::tibble(x = c(1,2), y = c(1,2), date = c(1,2)),
+         mapping = aes(x = x, y = y)) +
+  geom_point(colour = "#f0e9df") +
+  geom_line(colour = "#f0e9df") +
+  xlab(NULL) +
+  ylab(NULL) +
+  transition_reveal(date) +
+  theme(axis.line.x = element_blank(),
+        axis.line.y = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks.x = element_blank(),
+        axis.ticks.y = element_blank(),
+        plot.background = element_rect(fill = "#f0e9df", color = NA),
+        panel.background = element_rect(fill = "#f0e9df", color = NA))
+
+g <- gganimate::animate(g, width = 9, height = 2, renderer = gifski_renderer(), units = "cm", res = 150)
+g <- magick::image_read(g, density = 200)
+
+magick::image_write_gif(g, "07-climate-models/www/plot_buffer.gif")
 

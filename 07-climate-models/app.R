@@ -14,7 +14,14 @@ ui <- fluidPage(
     title = "Climate models: How accurate are they?",
     
     # set the background colours
-    setBackgroundColor("#f0e9df"),
+    setBackgroundColor("#ede4d7"),
+    
+    # suppress warning messages while data is loading on-screen
+    tags$style(
+      type = "text/css",
+      ".shiny-output-error { visibility: hidden; }",
+      ".shiny-output-error:before { visibility: hidden; }"
+    ),
     
     # article title & name
     fluidRow(
@@ -74,6 +81,7 @@ ui <- fluidPage(
                       scrolly_graph( imageOutput("gif_n"), width = "62.5%" ),
                       
                       scrolly_sections(
+                        scrolly_section(id = "buffer", br()),
                         scrolly_section(id = 1, render_text(1)),
                         scrolly_section(id = 2, render_text(2)),
                         scrolly_section(id = 3, render_text(3)),
@@ -101,8 +109,7 @@ server <- function(input, output) {
     list(src = paste0("www/plot_", input$scr, ".gif"),
          contentType = 'video/gif',
          width = "600px",
-         height = "300px",
-         alt = paste0("image", input$scr))
+         height = "300px")
     
   }, deleteFile = FALSE)
   
