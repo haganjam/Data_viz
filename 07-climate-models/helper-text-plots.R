@@ -46,7 +46,7 @@ render_text <- function(num){
 text0a <- HTML("<span style='font-size:20px'> How well have past climate models predicted future changes in global temperature? </span>
               <br><br> 
               <p>A claim I often hear repeated in the conservative media space (don't ask we why I sometimes frequent conservative media on YouTube, we all have our guilty pleasures)
-              is that the climate models have consistently *overestimated* the amount of warming that has occurred in the 20th and 21st centuries. For example,
+              is that the climate models have consistently <i>overestimated</i> the amount of warming that has occurred in the 20th and 21st centuries. For example,
               I heard Ben Shapiro say in a debate: 'the modelling has been wrong for 20-30 years and has been overestimating the amount of climate change that has actually taken place'.
               Personally, I'm not sure where he or anyone else gets such a claim from but I thought it would be fun to look at climate models that have been published at some time (e.g. 1970)
               and compare how well their future predictions matched the actual warming that occurred. Fortunately, an excellent paper from Hausfather et al. (2019, Geophysical Research Letters)
@@ -63,43 +63,43 @@ text0b <- HTML("<p>So, how well have the different climate models over the years
                would change. Yet, in many cases, these models made very good future predictions of the temperature. See for yourself.<p>"
 )
 
-text1 <- HTML("<H2> Manabe (1970) </H2>
+text1 <- HTML("<H3> Manabe (1970) </H3>
               <br> <p> In 1970, Manable published one of the first climate models with projections of warming for the future. The model was a simple energy balance model with CO2 concentrations as the main driver of global temperatures.
               <br> Despite its simplicity, Manabe's model still made relatively accurate predictions of the observed warming trend of the global temperature between 1970 and 2000")
 
-text2 <- HTML("<H2> Benson (1970) </H2>
+text2 <- HTML("<H3> Benson (1970) </H3>
               <br> <p> In 1970, Manable published one of the first climate models with projections of warming for the future. The model was a simple energy balance model with CO2 concentrations as the main driver of global temperatures.
               <br> Despite its simplicity, Manabe's model still made relatively accurate predictions of the observed warming trend of the global temperature between 1970 and 2000")
 
-text3 <- HTML("<H2> Mitchell (1970) </H2>
+text3 <- HTML("<H3> Mitchell (1970) </H3>
               <br> <p> In 1970, Manable published one of the first climate models with projections of warming for the future. The model was a simple energy balance model with CO2 concentrations as the main driver of global temperatures.
               <br> Despite its simplicity, Manabe's model still made relatively accurate predictions of the observed warming trend of the global temperature between 1970 and 2000")
 
-text4 <- HTML("<H2> Sawyer (1972) </H2>
+text4 <- HTML("<H3> Sawyer (1972) </H3>
               <br> <p> In 1970, Manable published one of the first climate models with projections of warming for the future. The model was a simple energy balance model with CO2 concentrations as the main driver of global temperatures.
               <br> Despite its simplicity, Manabe's model still made relatively accurate predictions of the observed warming trend of the global temperature between 1970 and 2000")
 
-text5 <- HTML("<H2> Broecker (1975) </H2>
+text5 <- HTML("<H3> Broecker (1975) </H3>
               <br> <p> In 1970, Manable published one of the first climate models with projections of warming for the future. The model was a simple energy balance model with CO2 concentrations as the main driver of global temperatures.
               <br> Despite its simplicity, Manabe's model still made relatively accurate predictions of the observed warming trend of the global temperature between 1970 and 2000")
 
-text6 <- HTML("<H2> Nordhaus (1977) </H2>
+text6 <- HTML("<H3> Nordhaus (1977) </H3>
               <br> <p> In 1970, Manable published one of the first climate models with projections of warming for the future. The model was a simple energy balance model with CO2 concentrations as the main driver of global temperatures.
               <br> Despite its simplicity, Manabe's model still made relatively accurate predictions of the observed warming trend of the global temperature between 1970 and 2000")
 
-text7 <- HTML("<H2> Hansen et al. (1981) </H2>
+text7 <- HTML("<H3> Hansen et al. (1981) </H3>
               <br> <p> In 1970, Manable published one of the first climate models with projections of warming for the future. The model was a simple energy balance model with CO2 concentrations as the main driver of global temperatures.
               <br> Despite its simplicity, Manabe's model still made relatively accurate predictions of the observed warming trend of the global temperature between 1970 and 2000")
 
-text8 <- HTML("<H2> Schneider and Thompson (1981) </H2>
+text8 <- HTML("<H3> Schneider and Thompson (1981) </H3>
               <br> <p> In 1970, Manable published one of the first climate models with projections of warming for the future. The model was a simple energy balance model with CO2 concentrations as the main driver of global temperatures.
               <br> Despite its simplicity, Manabe's model still made relatively accurate predictions of the observed warming trend of the global temperature between 1970 and 2000")
 
-text9 <- HTML("<H2> IPCC (1995) </H2>
+text9 <- HTML("<H3> IPCC (1995) </H3>
               <br> <p> In 1970, Manable published one of the first climate models with projections of warming for the future. The model was a simple energy balance model with CO2 concentrations as the main driver of global temperatures.
               <br> Despite its simplicity, Manabe's model still made relatively accurate predictions of the observed warming trend of the global temperature between 1970 and 2000")
 
-text10 <- HTML("<H2> IPCC (2007) </H2>
+text10 <- HTML("<H3> IPCC (2007) </H3>
               <br> <p> In 1970, Manable published one of the first climate models with projections of warming for the future. The model was a simple energy balance model with CO2 concentrations as the main driver of global temperatures.
               <br> Despite its simplicity, Manabe's model still made relatively accurate predictions of the observed warming trend of the global temperature between 1970 and 2000")
 

@@ -114,7 +114,7 @@ for(j in 1:length(mod_gif)) {
   
   # write into a gif
   p_a1_gif <- animate(p_a1, width = 9, height = 7, renderer = gifski_renderer(), units = "cm", res = 150)
-  p_a1_gifm <- magick::image_read(p_a1_gif)
+  p_a1_gifm <- magick::image_read(p_a1_gif, density = 200)
   
   # make an animate plot
   pub_in <- 
@@ -175,11 +175,11 @@ for(j in 1:length(mod_gif)) {
   
   # write into a gif
   p_a2_gif <- gganimate::animate(p_a2, width = 9, height = 7, renderer = gifski_renderer(), units = "cm", res = 150)
-  p_a2_gifm <- magick::image_read(p_a2_gif)
+  p_a2_gifm <- magick::image_read(p_a2_gif, density = 200)
   
-  new_gif <- magick::image_montage(c(p_a1_gifm[length(p_a1_gifm)], p_a2_gifm[1]), tile = "2x1", geometry = "500x500", bg = "#f0e9df")
+  new_gif <- magick::image_montage(c(p_a1_gifm[length(p_a1_gifm)], p_a2_gifm[1]), tile = "2x1", geometry = "500x500", bg = "#ede4d7")
   for(i in 2:length(p_a2_gifm)) {
-    combined <- magick::image_montage(c(p_a1_gifm[length(p_a1_gifm)], p_a2_gifm[i]), tile = "2x1", geometry = "500x500", bg = "#f0e9df")
+    combined <- magick::image_montage(c(p_a1_gifm[length(p_a1_gifm)], p_a2_gifm[i]), tile = "2x1", geometry = "500x500", bg = "#ede4d7")
     new_gif <- c(new_gif, combined)
   }
   
@@ -189,7 +189,7 @@ for(j in 1:length(mod_gif)) {
 }
 
 # check the gifs
-mod_gif[[2]]
+# mod_gif[[2]]
 
 # save the gifs
 file_names <- as.character(c(paste0("_", 1:10)))

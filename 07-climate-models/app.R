@@ -65,11 +65,13 @@ ui <- fluidPage(
     
     br(),
     br(),
+    br(),
+    br(),
     
     # scrollytelling plot
     scrolly_container(outputId = "scr",
                       
-                      scrolly_graph( imageOutput("gif_n") ),
+                      scrolly_graph( imageOutput("gif_n"), width = "62.5%" ),
                       
                       scrolly_sections(
                         scrolly_section(id = 1, render_text(1)),
@@ -83,7 +85,7 @@ ui <- fluidPage(
                         scrolly_section(id = 9, render_text(9)),
                         scrolly_section(id = 10, render_text(10)),
                         scrolly_section(id = "buffer", br()),
-                        )
+                        width = "35%")
                       )
 )
 
