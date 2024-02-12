@@ -31,22 +31,29 @@ A collection of data visualisation projects that I have enjoyed doing recently. 
 ![](02-EU-CHP/figures-tables/fig1.png)
 <br>
 
-### 2. TidyTuesday: Week 6 (2024-02-06)
+### 3. How accurate are climate models?
+
+![](07-climate-models/figures-tables/climate-model-preview.mov)
+<br>
+
+[![](https://img.shields.io/badge/Shiny-shinyapps.io-blue?style=flat&labelColor=white&logo=RStudio&logoColor=blue)](https://james-hagan.shinyapps.io/climate-models/)
+
+### 4. TidyTuesday: Week 6 (2024-02-06)
 
 ![](05-tidy-tuesday/2024-02-06/figures-tables/fig1.png)
 <br>
 
-### 3. Exploring the Central Limit Theorem
+### 5. Exploring the Central Limit Theorem
 
 This is a ShinyApp used to explore the Central Limit Theorem. I recently wrapped some R-code that I used as a teaching tool during some of the biostatistics courses that I taught into a ShinyApp.
 
 <br>
 
-+ [![](https://img.shields.io/badge/Shiny-shinyapps.io-blue?style=flat&labelColor=white&logo=RStudio&logoColor=blue)](https://james-hagan.shinyapps.io/central-limit-theorem/)
+[![](https://img.shields.io/badge/Shiny-shinyapps.io-blue?style=flat&labelColor=white&logo=RStudio&logoColor=blue)](https://james-hagan.shinyapps.io/central-limit-theorem/)
 
 <br>
 
-![](03-central-limit-theorem/preview_gif.gif)
+![](03-central-limit-theorem/clt-preview.mov)
 
 
 

@@ -49,7 +49,6 @@ base_obs_plot <-
   scale_y_continuous(expand = c(0, 0)) +
   coord_cartesian(ylim = c(-1, 1.4), clip = "off") +
   theme(plot.margin = margin(c(40, 10, 10, 10)))
-plot(base_obs_plot)
 
 # select a model
 mod_id <- 
@@ -78,26 +77,10 @@ for(j in 1:length(mod_gif)) {
       data = dplyr::filter(ts_box, model_id == mod_id[j]),
       mapping = aes(x = date_start, y = 1.55, label = "Publication"),
       inherit.aes = FALSE,
-      size = 3.5, 
+      size = 5.5, 
       colour = '#C71C7E',
       family = "Dosis",
       vjust = -0.05
-    ) +
-    ggtext::geom_textbox(
-      data = dplyr::filter(ts_box, model_id == mod_id[j]),
-      mapping = aes(x = date_start, y = 1.3, label = "Prediction window"),
-      inherit.aes = FALSE,
-      size = 3, 
-      alpha = 0.3,
-      colour = 'grey45',
-      family = "Bebas Neue",
-      width = unit(60, "pt"),
-      valign = 0.5,
-      halign = 0.5,
-      vjust = 1,
-      hjust = 0.21,
-      box.colour = NA,
-      fill = NA
     ) +
     geom_rect(
       data = dplyr::filter(ts_box, model_id == mod_id[j]),
@@ -110,12 +93,33 @@ for(j in 1:length(mod_gif)) {
     theme(axis.title.y = element_text(vjust = 0.5,
                                       margin = margin(c(10, 30, 10, 10))),
           plot.margin = margin(c(35, 10, 20, 20)),
-          plot.background = element_rect(fill = "#f0e9df", color = NA),
-          panel.background = element_rect(fill = "#f0e9df", color = NA))
+          plot.background = element_rect(fill = "#f0e9df", color = "#f0e9df"),
+          panel.background = element_rect(fill = "#f0e9df", color = "#f0e9df"))
+  
+  if(j == 1) {
+    p_a1 <- 
+      p_a1 +
+      ggtext::geom_textbox(
+      data = dplyr::filter(ts_box, model_id == mod_id[j]),
+      mapping = aes(x = date_start, y = 1.3, label = "Prediction window"),
+      inherit.aes = FALSE,
+      size = 5, 
+      alpha = 0.3,
+      colour = 'grey45',
+      family = "Bebas Neue",
+      width = unit(60, "pt"),
+      valign = 0.5,
+      halign = 0.5,
+      vjust = 1,
+      hjust = 0,
+      box.colour = NA,
+      fill = NA
+    )
+  }
   # plot(p_a1)
   
   # write into a gif
-  p_a1_gif <- animate(p_a1, width = 9, height = 7, renderer = gifski_renderer(), units = "cm", res = 150)
+  p_a1_gif <- animate(p_a1, width = 14, height = 11, renderer = gifski_renderer(), units = "cm", res = 250)
   p_a1_gifm <- magick::image_read(p_a1_gif)
   
   # make an animate plot
@@ -146,19 +150,6 @@ for(j in 1:length(mod_gif)) {
       alpha = 0.1, 
       fill = '#C71C7E'
     ) +
-    geom_segment(
-      data = dplyr::filter(ts_box, model_id == mod_id[j]),
-      mapping = aes(x = lubridate::as_date(date_mid-1500), xend =  lubridate::as_date(date_mid-900),
-                    y = max_y + 0.08, yend = max_y + 0.08),
-      inherit.aes = FALSE
-    ) +
-    geom_text(
-      data = dplyr::filter(ts_box, model_id == mod_id[j]),
-      mapping = aes(x = lubridate::as_date(date_mid+300), y = max_y + 0.08,
-                    label = "Model"),
-      inherit.aes = FALSE,
-      family = "Dosis"
-    ) +
     geom_line(data = pub_in,
               mapping = aes(x = date, y = temp_anom_C)) +
     geom_line(data = obs_in,
@@ -168,22 +159,41 @@ for(j in 1:length(mod_gif)) {
     xlab(NULL) +
     scale_x_date() +
     scale_y_continuous(expand = c(0, 0)) +
-    coord_cartesian(ylim = c(min_y-0.01, max_y+0.085), clip = "off") +
+    coord_cartesian(ylim = c(min_y-0.01, max_y+0.095), clip = "off") +
     transition_reveal(date) +
     theme(axis.title.y = element_text(vjust = 0.5,
                                       margin = margin(c(10, 30, 10, 10))),
           plot.margin = margin(c(35, 10, 20, 20)),
-          plot.background = element_rect(fill = "#f0e9df", color = NA),
-          panel.background = element_rect(fill = "#f0e9df", color = NA))
+          plot.background = element_rect(fill = "#f0e9df", color = "#f0e9df"),
+          panel.background = element_rect(fill = "#f0e9df", color = "#f0e9df"))
+  
+  if(j == 1) {
+    p_a2 <- 
+      p_a2 +
+      geom_segment(
+        data = dplyr::filter(ts_box, model_id == mod_id[j]),
+        mapping = aes(x = lubridate::as_date(date_mid-1700), xend =  lubridate::as_date(date_mid-900),
+                      y = max_y + 0.08, yend = max_y + 0.08),
+        inherit.aes = FALSE
+      ) +
+      geom_text(
+        data = dplyr::filter(ts_box, model_id == mod_id[j]),
+        mapping = aes(x = lubridate::as_date(date_mid+1400), y = max_y + 0.08,
+                      label = "Model prediction"),
+        inherit.aes = FALSE,
+        size = 5.5,
+        family = "Dosis"
+      )
+  }
   # plot(p_a2)
   
   # write into a gif
-  p_a2_gif <- gganimate::animate(p_a2, width = 9, height = 7, renderer = gifski_renderer(), units = "cm", res = 150)
+  p_a2_gif <- gganimate::animate(p_a2, width = 14, height = 11, renderer = gifski_renderer(), units = "cm", res = 250)
   p_a2_gifm <- magick::image_read(p_a2_gif, density = 200)
   
-  new_gif <- magick::image_montage(c(p_a1_gifm[length(p_a1_gifm)], p_a2_gifm[1]), tile = "2x1", geometry = "500x500", bg = "#ede4d7")
+  new_gif <- magick::image_montage(c(p_a1_gifm[length(p_a1_gifm)], p_a2_gifm[1]), tile = "2x1", geometry = "635x500", bg = "#ede4d7")
   for(i in 2:length(p_a2_gifm)) {
-    combined <- magick::image_montage(c(p_a1_gifm[length(p_a1_gifm)], p_a2_gifm[i]), tile = "2x1", geometry = "500x500", bg = "#ede4d7")
+    combined <- magick::image_montage(c(p_a1_gifm[length(p_a1_gifm)], p_a2_gifm[i]), tile = "2x1", geometry = "635x500", bg = "#ede4d7")
     new_gif <- c(new_gif, combined)
   }
   
@@ -219,10 +229,10 @@ g <-
         axis.text = element_blank(),
         axis.ticks.x = element_blank(),
         axis.ticks.y = element_blank(),
-        plot.background = element_rect(fill = "#f0e9df", color = NA),
-        panel.background = element_rect(fill = "#f0e9df", color = NA))
+        plot.background = element_rect(fill = "#f0e9df", color = "#f0e9df"),
+        panel.background = element_rect(fill = "#f0e9df", color = "#f0e9df"))
 
-g <- gganimate::animate(g, width = 9, height = 2, renderer = gifski_renderer(), units = "cm", res = 150)
+g <- gganimate::animate(g, width = 9, height = 0.1, renderer = gifski_renderer(), units = "cm", res = 150)
 g <- magick::image_read(g, density = 200)
 
 magick::image_write_gif(g, "07-climate-models/www/plot_buffer.gif")

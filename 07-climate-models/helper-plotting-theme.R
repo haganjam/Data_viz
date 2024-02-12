@@ -18,7 +18,7 @@ font_add_google("Ubuntu", "Ubuntu")
 showtext_auto()
 
 ## ggplot theme
-theme_set(theme_minimal(base_family = "Dosis", base_size = 12))
+theme_set(theme_minimal(base_family = "Dosis", base_size = 14))
 
 theme_update(
   plot.title = element_text(size = 18,
