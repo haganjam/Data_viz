@@ -1,0 +1,9 @@
+---
+output: rmarkdown::github_document
+---
+
+# Exploring the Central Limit Theorem
+<br>
+![](figures-tables/clt-preview.gif)
+<br>
+Published application can be found [here](https://www.linkedin.com/in/james-hagan-b95389174/)

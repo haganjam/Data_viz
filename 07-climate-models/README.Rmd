@@ -1,0 +1,9 @@
+---
+output: rmarkdown::github_document
+---
+
+# How accurate are climate models?
+<br>
+![](figures-tables/climate-model-preview.gif)
+<br>
+Published application can be found [here](https://james-hagan.shinyapps.io/climate-models/)
