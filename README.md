@@ -33,10 +33,10 @@ A collection of data visualisation projects that I have enjoyed doing recently. 
 
 ### 3. How accurate are climate models?
 
-![](07-climate-models/figures-tables/climate-model-preview.gif){height=300px width=500x}
+![](07-climate-models/figures-tables/climate-model-preview.gif)
 <br>
 
-[![](https://img.shields.io/badge/Shiny-shinyapps.io-blue?style=flat&labelColor=white&logo=RStudio&logoColor=blue)](https://james-hagan.shinyapps.io/climate-models/)
+The published application can be found: [![](https://img.shields.io/badge/Shiny-shinyapps.io-blue?style=flat&labelColor=white&logo=RStudio&logoColor=blue)](https://james-hagan.shinyapps.io/climate-models/)
 
 ### 4. TidyTuesday: Week 6 (2024-02-06)
 
@@ -49,11 +49,14 @@ This is a ShinyApp used to explore the Central Limit Theorem. I recently wrapped
 
 <br>
 
-[![](https://img.shields.io/badge/Shiny-shinyapps.io-blue?style=flat&labelColor=white&logo=RStudio&logoColor=blue)](https://james-hagan.shinyapps.io/central-limit-theorem/)
+![](03-central-limit-theorem/figures-tables/clt-preview.gif)
 
 <br>
 
-![](03-central-limit-theorem/figures-tables/clt-preview.gif){height=300px width=500x}
+The published application can be found: [![](https://img.shields.io/badge/Shiny-shinyapps.io-blue?style=flat&labelColor=white&logo=RStudio&logoColor=blue)](https://james-hagan.shinyapps.io/central-limit-theorem/)
+
+
+
 
 
 
