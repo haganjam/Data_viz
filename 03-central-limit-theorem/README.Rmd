@@ -4,6 +4,7 @@ output: rmarkdown::github_document
 
 # Exploring the Central Limit Theorem
 <br>
-![](figures-tables/clt-preview.gif)
+![](figures-tables/clt-preview.gif){height=300px width=500x}
 <br>
-Published application can be found [here](https://www.linkedin.com/in/james-hagan-b95389174/)
+<br>
+The published application can be found [here.](https://james-hagan.shinyapps.io/central-limit-theorem/)

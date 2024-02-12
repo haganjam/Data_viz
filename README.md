@@ -33,7 +33,7 @@ A collection of data visualisation projects that I have enjoyed doing recently. 
 
 ### 3. How accurate are climate models?
 
-![](07-climate-models/figures-tables/climate-model-preview.gif)
+![](07-climate-models/figures-tables/climate-model-preview.gif){height=300px width=500x}
 <br>
 
 [![](https://img.shields.io/badge/Shiny-shinyapps.io-blue?style=flat&labelColor=white&logo=RStudio&logoColor=blue)](https://james-hagan.shinyapps.io/climate-models/)
@@ -53,7 +53,7 @@ This is a ShinyApp used to explore the Central Limit Theorem. I recently wrapped
 
 <br>
 
-![](03-central-limit-theorem/figures-tables/clt-preview.gif)
+![](03-central-limit-theorem/figures-tables/clt-preview.gif){height=300px width=500x}
 
 
 
