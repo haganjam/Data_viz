@@ -153,6 +153,6 @@ intro_plot <-
   coord_cartesian(clip = "off") +
   theme(legend.position = "top",
         legend.title = element_blank(),
-        legend.text = element_text(size = 10, color = "grey40"),
-        axis.text = element_text(size = 10),
-        axis.title = element_text(size = 12))
+        legend.text = element_text(size = 16, color = "grey40"),
+        axis.text = element_text(size = 16),
+        axis.title = element_text(size = 16))
